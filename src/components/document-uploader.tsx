@@ -129,7 +129,7 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
         <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-foreground">Your Legal Dashboard</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto mt-2">See how LegalEdge AI transforms complex contracts into actionable insights.</p>
+              <p className="text-muted-foreground max-w-2xl mx-auto mt-2">See how LawyeredUp transforms complex contracts into actionable insights.</p>
             </div>
             
             <div className="bg-card rounded-2xl shadow-xl overflow-hidden border">
@@ -315,18 +315,31 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
     </section>
 
     <section className="py-16 bg-gradient-to-r from-primary to-blue-700 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Simplify Your Legal Documents?</h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">Join thousands of professionals who save hours understanding contracts.</p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button variant="secondary" size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-                    Get Started Free
-                </Button>
-                <Button variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
-                    Schedule Demo
-                </Button>
-            </div>
+      <div className="container mx-auto px-4 text-center rounded-2xl py-12">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          Ready to Simplify Your Legal Documents?
+        </h2>
+        <p className="text-xl mb-8 max-w-2xl mx-auto">
+          Join thousands of professionals who save hours understanding
+          contracts.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+          >
+            Get Started Free
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
+          >
+            Schedule Demo
+          </Button>
         </div>
+      </div>
     </section>
 
     <footer className="bg-gray-900 text-gray-400 py-12">
@@ -335,7 +348,7 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
                 <div>
                     <div className="flex items-center space-x-2 mb-4">
                         <div className="w-8 h-8 bg-primary rounded-full"></div>
-                        <span className="text-xl font-bold text-white">LegalEdge AI</span>
+                        <span className="text-xl font-bold text-white">LawyeredUp</span>
                     </div>
                     <p className="text-sm">Demystifying legal documents with AI-powered analysis.</p>
                 </div>
@@ -368,7 +381,7 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
                 </div>
             </div>
             <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-                <p>&copy; 2024 LegalEdge AI. All rights reserved.</p>
+                <p>&copy; 2024 LawyeredUp. All rights reserved.</p>
             </div>
         </div>
     </footer>

@@ -23,7 +23,7 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
         fontWeight="bold"
         fill="url(#grad1)"
       >
-        LegalEdge AI
+        LawyeredUp
       </text>
     </svg>
   );
