@@ -4,11 +4,9 @@ import { useState } from "react";
 import type { SampleDocument } from "@/lib/data";
 import { sampleDocumentData } from "@/lib/data";
 import DocumentUploader from "@/components/document-uploader";
-import AnalysisLayout from "@/components/analysis-layout";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [document, setDocument] = useState<SampleDocument | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -16,14 +14,9 @@ export default function Home() {
     setIsLoading(true);
     // Simulate AI processing time
     setTimeout(() => {
-      setDocument(sampleDocumentData);
        router.push('/analysis');
       setIsLoading(false);
     }, 1500);
-  };
-
-  const handleNewUpload = () => {
-    setDocument(null);
   };
 
   return (

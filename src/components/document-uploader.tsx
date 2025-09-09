@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2, Download, Settings } from 'lucide-react';
+import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2, Download, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,8 @@ import { Logo } from '@/components/logo';
 import Image from 'next/image';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ThemeToggle } from './theme-toggle';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 
 type DocumentUploaderProps = {
   onUploadSample: () => void;
@@ -20,8 +22,26 @@ type DocumentUploaderProps = {
 export default function DocumentUploader({ onUploadSample, isLoading }: DocumentUploaderProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
-      <div className="flex flex-col items-center text-center mb-8">
-        <Logo className="mb-4" />
+      <header className="absolute top-0 left-0 right-0 flex items-center justify-between h-16 px-4 shrink-0">
+        <div className="flex items-center gap-4">
+          <Logo />
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+           <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
+                  </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                  <DropdownMenuItem>Sign In</DropdownMenuItem>
+              </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+
+      <div className="flex flex-col items-center text-center mb-8 pt-16">
         <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">
           Demystify Your Legal Documents.
         </h1>
