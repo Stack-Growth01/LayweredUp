@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -127,8 +127,16 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
 
     <section className="py-16 bg-background w-full">
         <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center text-foreground mb-4">Your Legal Dashboard</h2>
-            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">See how LegalEdge AI transforms complex contracts into actionable insights.</p>
+            <div className="flex justify-between items-center mb-12">
+              <div>
+                <h2 className="text-3xl font-bold text-center text-foreground">Your Legal Dashboard</h2>
+                <p className="text-muted-foreground text-center max-w-2xl mx-auto">See how LegalEdge AI transforms complex contracts into actionable insights.</p>
+              </div>
+              <Button variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Export Report
+              </Button>
+            </div>
             
             <div className="bg-card rounded-2xl shadow-xl overflow-hidden border">
                 <div className="flex">
@@ -156,16 +164,16 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
                             <h3 className="font-semibold text-foreground mb-3 px-2">Filters</h3>
                             <div className="space-y-3 p-2">
                                 <div className="flex items-center">
-                                    <Checkbox id="high-risk" />
-                                    <Label htmlFor="high-risk" className="ml-2 text-sm">High Risk Clauses</Label>
+                                    <Checkbox id="high-risk-preview" />
+                                    <Label htmlFor="high-risk-preview" className="ml-2 text-sm">High Risk Clauses</Label>
                                 </div>
                                 <div className="flex items-center">
-                                    <Checkbox id="negotiable" defaultChecked />
-                                    <Label htmlFor="negotiable" className="ml-2 text-sm">Negotiable Terms</Label>
+                                    <Checkbox id="negotiable-preview" defaultChecked />
+                                    <Label htmlFor="negotiable-preview" className="ml-2 text-sm">Negotiable Terms</Label>
                                 </div>
                                 <div className="flex items-center">
-                                    <Checkbox id="standard-clauses" />
-                                    <Label htmlFor="standard-clauses" className="ml-2 text-sm">Standard Clauses</Label>
+                                    <Checkbox id="standard-clauses-preview" />
+                                    <Label htmlFor="standard-clauses-preview" className="ml-2 text-sm">Standard Clauses</Label>
                                 </div>
                             </div>
                         </div>
