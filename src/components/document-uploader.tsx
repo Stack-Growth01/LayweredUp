@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2, Download } from 'lucide-react';
+import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2, Download, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -127,18 +127,29 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
 
     <section className="py-16 bg-background w-full">
         <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-12">
-              <div>
-                <h2 className="text-3xl font-bold text-center text-foreground">Your Legal Dashboard</h2>
-                <p className="text-muted-foreground text-center max-w-2xl mx-auto">See how LegalEdge AI transforms complex contracts into actionable insights.</p>
-              </div>
-              <Button variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export Report
-              </Button>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-foreground">Your Legal Dashboard</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto mt-2">See how LegalEdge AI transforms complex contracts into actionable insights.</p>
             </div>
             
             <div className="bg-card rounded-2xl shadow-xl overflow-hidden border">
+                <div className="border-b px-6 py-3 flex justify-between items-center">
+                    <div className="flex items-center">
+                        <button className="px-3 py-2 text-sm font-semibold text-primary border-b-2 border-primary">Document Analysis</button>
+                        <button className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">Risk Overview</button>
+                        <button className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">Exports</button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon">
+                            <Settings className="h-5 w-5" />
+                        </Button>
+                        <Button>
+                            <Download className="mr-2 h-4 w-4" />
+                            Export Report
+                        </Button>
+                    </div>
+                </div>
+
                 <div className="flex">
                     {/* Left Sidebar */}
                     <div className="w-64 border-r border-border bg-muted/40 p-4">
