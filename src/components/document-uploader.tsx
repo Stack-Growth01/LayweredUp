@@ -314,8 +314,8 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
         </div>
     </section>
 
-    <section className="py-16 bg-gradient-to-r from-primary to-blue-700 text-primary-foreground">
-      <div className="container mx-auto px-4 text-center rounded-2xl py-12">
+    <section className="w-full py-16 bg-gradient-to-r from-primary to-blue-700 text-primary-foreground">
+      <div className="container mx-auto px-4 text-center py-12">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           Ready to Simplify Your Legal Documents?
         </h2>
