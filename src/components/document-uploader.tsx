@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil } from 'lucide-react';
+import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 import Image from 'next/image';
+import { Checkbox } from './ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type DocumentUploaderProps = {
   onUploadSample: () => void;
@@ -129,14 +131,166 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
             <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">See how LegalEdge AI transforms complex contracts into actionable insights.</p>
             
             <div className="bg-card rounded-2xl shadow-xl overflow-hidden border">
-                <Image
-                    src="https://picsum.photos/1200/788"
-                    alt="LegalEdge AI Dashboard Preview"
-                    width={1200}
-                    height={788}
-                    className="w-full h-auto"
-                    data-ai-hint="dashboard preview"
-                />
+                <div className="flex">
+                    {/* Left Sidebar */}
+                    <div className="w-64 border-r border-border bg-muted/40 p-4">
+                        <div className="mb-6">
+                            <h3 className="font-semibold text-foreground mb-3 px-2">Documents</h3>
+                            <ul className="space-y-1">
+                                <li className="flex items-center space-x-2 p-2 bg-background rounded-lg">
+                                    <FileText className="w-4 h-4 text-primary" />
+                                    <span className="text-sm font-medium text-primary">Rental Agreement</span>
+                                </li>
+                                <li className="flex items-center space-x-2 p-2 rounded-lg hover:bg-background/50">
+                                    <FileText className="w-4 h-4 text-muted-foreground" />
+                                    <span className="text-sm">Employment Contract</span>
+                                </li>
+                                <li className="flex items-center space-x-2 p-2 rounded-lg hover:bg-background/50">
+                                    <FileText className="w-4 h-4 text-muted-foreground" />
+                                    <span className="text-sm">Service Agreement</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div className="mb-6">
+                            <h3 className="font-semibold text-foreground mb-3 px-2">Filters</h3>
+                            <div className="space-y-3 p-2">
+                                <div className="flex items-center">
+                                    <Checkbox id="high-risk" />
+                                    <Label htmlFor="high-risk" className="ml-2 text-sm">High Risk Clauses</Label>
+                                </div>
+                                <div className="flex items-center">
+                                    <Checkbox id="negotiable" defaultChecked />
+                                    <Label htmlFor="negotiable" className="ml-2 text-sm">Negotiable Terms</Label>
+                                </div>
+                                <div className="flex items-center">
+                                    <Checkbox id="standard-clauses" />
+                                    <Label htmlFor="standard-clauses" className="ml-2 text-sm">Standard Clauses</Label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 className="font-semibold text-foreground mb-3 px-2">Role Lens</h3>
+                            <Select defaultValue="tenant">
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select a role..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="tenant">Tenant</SelectItem>
+                                    <SelectItem value="landlord">Landlord</SelectItem>
+                                    <SelectItem value="freelancer">Freelancer</SelectItem>
+                                    <SelectItem value="smb">SMB Owner</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    
+                    {/* Main Content */}
+                    <div className="flex-1 p-6">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-foreground">Rental Agreement</h2>
+                            <div className="flex space-x-2">
+                                <Button variant="outline" size="sm">ELI5</Button>
+                                <Button variant="secondary" size="sm">ELI15</Button>
+                            </div>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4 mb-6 prose prose-sm max-w-none">
+                            <p>
+                                This Rental Agreement ("Agreement") is made between [Landlord Name] ("Landlord") and [Tenant Name] ("Tenant"). 
+                                The Landlord agrees to lease to the Tenant the premises located at [Property Address] ("Premises") for residential purposes.
+                            </p>
+                            
+                            <p>
+                                The term of this Agreement shall commence on [Start Date] and continue on a month-to-month basis until terminated by either party upon thirty (30) days written notice.
+                            </p>
+                            
+                            <p>
+                                <span className="bg-destructive/20 p-1 rounded">The Landlord reserves the right to increase the rent at any time without prior notice.</span> 
+                                The current monthly rent is $[Amount], payable in advance on the first day of each month.
+                            </p>
+                            
+                            <p>
+                                <span className="bg-destructive/20 p-1 rounded">The Tenant shall be responsible for all damages to the Premises beyond normal wear and tear.</span> 
+                                The security deposit of $[Amount] will be applied to any unpaid rent or damages upon termination.
+                            </p>
+                            
+                            <p>
+                                <span className="bg-green-500/20 p-1 rounded">This Agreement shall be governed by the laws of [State].</span> 
+                                Any disputes arising under this Agreement shall be resolved in the courts of [County], [State].
+                            </p>
+                        </div>
+                        
+                        <div className="flex space-x-4">
+                            <Button variant="ghost" size="sm">
+                                <Navigation className="w-4 h-4 mr-2" />
+                                <span>Clause Navigator</span>
+                            </Button>
+                             <Button variant="ghost" size="sm">
+                                <BookOpen className="w-4 h-4 mr-2" />
+                                <span>Precedent Cases</span>
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                                <Volume2 className="w-4 h-4 mr-2" />
+                                <span>Read Aloud</span>
+                            </Button>
+                        </div>
+                    </div>
+                    
+                    {/* Right Panel */}
+                    <div className="w-80 border-l border-border p-6 bg-muted/40">
+                        <div className="mb-6">
+                            <h3 className="font-semibold text-foreground mb-3">TL;DR Summary</h3>
+                            <div className="bg-background rounded-lg p-3 border shadow-sm">
+                                <p className="text-sm text-muted-foreground">
+                                    This is a month-to-month rental agreement with automatic rent increases allowed. 
+                                    Tenant is responsible for all damages beyond normal wear and tear.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="mb-6">
+                            <h3 className="font-semibold text-foreground mb-3">Risks Identified</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-start">
+                                    <AlertTriangle className="w-5 h-5 text-destructive mt-1 mr-3 shrink-0" />
+                                    <div>
+                                        <p className="font-medium text-sm">Unilateral Rent Increase</p>
+                                        <p className="text-xs text-muted-foreground">Landlord can increase rent anytime without notice</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start">
+                                    <AlertTriangle className="w-5 h-5 text-destructive mt-1 mr-3 shrink-0" />
+                                    <div>
+                                        <p className="font-medium text-sm">Unlimited Damage Liability</p>
+                                        <p className="text-xs text-muted-foreground">Tenant responsible for all damages beyond normal wear</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start">
+                                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-1 mr-3 shrink-0" />
+                                    <div>
+                                        <p className="font-medium text-sm">Governing Law Clause</p>
+                                        <p className="text-xs text-muted-foreground">Standard clause specifying jurisdiction</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 className="font-semibold text-foreground mb-3">Suggested Edits</h3>
+                            <div className="bg-background rounded-lg p-4 border shadow-sm">
+                                <p className="text-sm text-foreground mb-3">
+                                    <span className="font-semibold">Rent Increases:</span> Add "Rent increases limited to 5% annually with 30 days written notice"
+                                </p>
+                                <p className="text-sm text-foreground">
+                                    <span className="font-semibold">Damage Clause:</span> Add "Normal wear and tear excepted" to damage responsibility clause
+                                </p>
+                                <Button className="mt-4 w-full" size="sm">Copy All Suggestions</Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
