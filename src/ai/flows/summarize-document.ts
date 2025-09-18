@@ -17,7 +17,7 @@ const SummarizeDocumentInputSchema = z.object({
 export type SummarizeDocumentInput = z.infer<typeof SummarizeDocumentInputSchema>;
 
 const SummarizeDocumentOutputSchema = z.object({
-  summary: z.string().describe('A concise, plain-language summary of the legal document.'),
+  summary: z.string().describe('A concise, one-page TL;DR of the contract in Markdown format.'),
 });
 export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
@@ -29,7 +29,26 @@ const prompt = ai.definePrompt({
   name: 'summarizeDocumentPrompt',
   input: {schema: SummarizeDocumentInputSchema},
   output: {schema: SummarizeDocumentOutputSchema},
-  prompt: `You are an expert legal professional. Please provide a concise, plain-language summary of the following legal document:\n\n{{{documentText}}}`,
+  prompt: `[ROLE]
+You are a legal simplifier. Your job is to produce a one-page TL;DR of the contract.
+
+[INPUT]
+Contract text: "{documentText}"
+
+[INSTRUCTIONS]
+1. Break into sections:
+   - Key Terms
+   - Risks ⚠️
+   - Action Items ✅
+2. Keep it concise but structured.
+3. Focus on practical implications for the signer.
+
+[OUTPUT FORMAT] (JSON with a single key "summary" containing Markdown)
+Example:
+{
+  "summary": "# Contract TL;DR\\n**Key Terms**\\n- Term: 12 months\\n- Rent: $2,000/month\\n\\n**Risks ⚠️**\\n- Automatic rent increases allowed.\\n- Tenant responsible for all damages.\\n\\n**Action Items ✅**\\n- Clarify rent increase notice period.\\n- Negotiate damage liability."
+}
+`,
 });
 
 const summarizeDocumentFlow = ai.defineFlow(
