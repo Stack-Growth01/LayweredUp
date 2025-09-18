@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2, Handshake, Bot, Volume2, Link } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import AskAI from './ask-ai';
 
 const riskIcons = {
     risky: <AlertTriangle className="h-4 w-4 text-destructive" />,
@@ -78,6 +79,7 @@ export default function MainPanel({ document }: { document: SampleDocument }) {
                  <Tabs defaultValue="summary" className="w-full">
                     <TabsList>
                         <TabsTrigger value="summary">Document View</TabsTrigger>
+                        <TabsTrigger value="ask_ai">Ask AI</TabsTrigger>
                         <TabsTrigger value="navigator">Clause Navigator</TabsTrigger>
                         <TabsTrigger value="precedent">Precedent Cases</TabsTrigger>
                     </TabsList>
@@ -85,6 +87,9 @@ export default function MainPanel({ document }: { document: SampleDocument }) {
                     <TabsContent value="summary" className="mt-0">
                         {/* This content is below the tabs but shown for the Document View tab */}
                     </TabsContent>
+                    <TabsContent value="ask_ai" className="mt-4">
+                        <AskAI document={document} />
+                     </TabsContent>
                      <TabsContent value="navigator" className="mt-4">
                         <p className="text-sm text-muted-foreground">Jump to specific clauses in the document.</p>
                      </TabsContent>
