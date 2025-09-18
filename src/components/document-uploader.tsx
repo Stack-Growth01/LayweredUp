@@ -68,15 +68,29 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
               </TabsTrigger>
             </TabsList>
             <TabsContent value="upload">
-              <div className="border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors">
-                <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="font-semibold text-foreground">
-                  Drag & drop files here or click to browse
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Supports PDF, DOCX (up to 25MB)
-                </p>
-              </div>
+                <div className="flex flex-col gap-4">
+                    <div className="border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors">
+                        <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="font-semibold text-foreground">
+                        Drag & drop files here or click to browse
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                        Supports PDF, DOCX (up to 25MB)
+                        </p>
+                    </div>
+                    <Button
+                        onClick={onUploadSample}
+                        disabled={isLoading}
+                        className="w-full"
+                    >
+                        {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                        <Bot className="mr-2 h-4 w-4" />
+                        )}
+                        Demystify File
+                    </Button>
+                </div>
             </TabsContent>
             <TabsContent value="paste">
                 <div className="flex flex-col gap-4">
@@ -99,11 +113,25 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
                 </div>
             </TabsContent>
             <TabsContent value="connect">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Google Drive icon" src="https://picsum.photos/24/24" alt="Google Drive" className="w-6 h-6 mb-2" />Google Drive</Button>
-                <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Gmail icon" src="https://picsum.photos/24/24" alt="Gmail" className="w-6 h-6 mb-2" />Gmail</Button>
-                <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Slack icon" src="https://picsum.photos/24/24" alt="Slack" className="w-6 h-6 mb-2" />Slack</Button>
-              </div>
+                <div className="flex flex-col gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Google Drive icon" src="https://picsum.photos/24/24" alt="Google Drive" className="w-6 h-6 mb-2" />Google Drive</Button>
+                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Gmail icon" src="https://picsum.photos/24/24" alt="Gmail" className="w-6 h-6 mb-2" />Gmail</Button>
+                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Slack icon" src="https://picsum.photos/24/24" alt="Slack" className="w-6 h-6 mb-2" />Slack</Button>
+                    </div>
+                     <Button
+                        onClick={onUploadSample}
+                        disabled={isLoading}
+                        className="w-full"
+                    >
+                        {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                        <Bot className="mr-2 h-4 w-4" />
+                        )}
+                        Connect and Demystify
+                    </Button>
+                </div>
             </TabsContent>
           </Tabs>
         </CardContent>
