@@ -12,7 +12,7 @@ type AnalysisLayoutProps = {
 export default function AnalysisLayout({ document, onNewUpload }: AnalysisLayoutProps) {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <AppHeader onNewUpload={onNewUpload} />
+      <AppHeader onNewUpload={onNewUpload} document={document} />
       <div className="flex flex-1 overflow-hidden">
         <LeftSidebar documentTitle={document.title} />
         <main className="flex-1 flex flex-col overflow-hidden">
