@@ -9,3 +9,4 @@ import '@/ai/flows/answer-question-from-document.ts';
 import '@/ai/flows/compare-documents.ts';
 import '@/ai/flows/predict-risk.ts';
 import '@/ai/flows/predict-outcome.ts';
+import '@/ai/flows/personalize-legal-advice.ts';
