@@ -13,6 +13,7 @@ import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ThemeToggle } from './theme-toggle';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import Link from 'next/link';
 
 type DocumentUploaderProps = {
   onUploadSample: () => void;
@@ -24,7 +25,9 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
     <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
       <header className="absolute top-0 left-0 right-0 flex items-center justify-between h-16 px-4 shrink-0">
         <div className="flex items-center gap-4">
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />

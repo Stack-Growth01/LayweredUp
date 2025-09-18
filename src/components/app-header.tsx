@@ -6,6 +6,7 @@ import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import Link from 'next/link';
 
 type AppHeaderProps = {
   onNewUpload: () => void;
@@ -15,7 +16,9 @@ export default function AppHeader({ onNewUpload }: AppHeaderProps) {
   return (
     <header className="flex items-center justify-between h-16 px-4 border-b bg-card shrink-0">
       <div className="flex items-center gap-4">
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
       </div>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" onClick={onNewUpload}>
