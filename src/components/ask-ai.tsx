@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -19,7 +20,7 @@ import { compareDocuments } from '@/ai/flows/compare-documents';
 import { predictRisk } from '@/ai/flows/predict-risk';
 import { predictOutcome } from '@/ai/flows/predict-outcome';
 import { personalizeLegalAdvice } from '@/ai/flows/personalize-legal-advice';
-import { translateLegalText } from '@/aiflows/translate-legal-text';
+import { translateLegalText } from '@/ai/flows/translate-legal-text';
 import { generateCaseTimeline } from '@/ai/flows/generate-case-timeline';
 import { generateCostForecast } from '@/ai/flows/generate-cost-forecast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
