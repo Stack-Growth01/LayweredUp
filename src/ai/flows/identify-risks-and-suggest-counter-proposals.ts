@@ -22,24 +22,13 @@ export type IdentifyRisksAndSuggestCounterProposalsInput = z.infer<
   typeof IdentifyRisksAndSuggestCounterProposalsInputSchema
 >;
 
-const IdentifyRisksAndSuggestCounterProposalsOutputSchema = z.array(
-  z.object({
-    clause_type: z.enum([
-        "Term",
-        "Payment",
-        "Deposit",
-        "Termination",
-        "Liability",
-        "Confidentiality",
-        "Governing Law",
-        "Arbitration",
-        "Miscellaneous"
-    ]).describe("The category of the clause."),
-    clause_text: z.string().describe("The full text of the clause."),
-    risk_flag: z.boolean().describe("Whether the clause is considered risky or unusual."),
-    risk_reason: z.string().nullable().describe("A brief explanation of why the clause is risky. Null if not risky."),
-  })
-);
+const IdentifyRisksAndSuggestCounterProposalsOutputSchema = z.object({
+    summary: z.string().describe("A clear, plain-language summary of key clauses."),
+    risks: z.array(z.string()).describe("A list of risks, e.g., hidden penalties, auto-renewals, vague obligations, unfavorable termination clauses."),
+    recommendations: z.array(z.string()).describe("Actionable recommendations for the user, e.g., negotiate renewal period, clarify liability scope."),
+    confidence_scores: z.record(z.string(), z.enum(["High", "Medium", "Low"])).describe("A confidence level for each risk flag (high, medium, low)."),
+    flagged_text_snippets: z.array(z.string()).describe("The exact text snippets from the document that triggered each risk flag."),
+  });
 export type IdentifyRisksAndSuggestCounterProposalsOutput = z.infer<
   typeof IdentifyRisksAndSuggestCounterProposalsOutputSchema
 >;
@@ -54,20 +43,23 @@ const identifyRisksAndSuggestCounterProposalsPrompt = ai.definePrompt({
   name: 'identifyRisksAndSuggestCounterProposalsPrompt',
   input: {schema: IdentifyRisksAndSuggestCounterProposalsInputSchema},
   output: {schema: IdentifyRisksAndSuggestCounterProposalsOutputSchema},
-  prompt: `[ROLE]
-You are a contract clause detection assistant.
+  prompt: `You are a legal AI assistant specializing in document parsing and risk identification. Your task is to analyze uploaded legal documents (contracts, rental agreements, NDAs, service terms) and provide:
+
+A clear, plain-language summary of key clauses.
+
+Risk flags (e.g., hidden penalties, auto-renewals, vague obligations, unfavorable termination clauses).
+
+Actionable recommendations for the user (e.g., negotiate renewal period, clarify liability scope, avoid one-sided penalty clause).
+
+A confidence level for each risk flag (High, Medium, Low).
+
+Highlight exact text snippets from the document that triggered each risk flag.
 
 [INPUT]
 Contract text: "{{legalDocument}}"
 
-[INSTRUCTIONS]
-1. Detect and categorize clauses into one of the following buckets:
-   [Term, Payment, Deposit, Termination, Liability, Confidentiality, Governing Law, Arbitration, Miscellaneous]
-2. Highlight any risky or unusual terms, e.g., unilateral rights, vague timeframes, unlimited liability.
-3. For each clause, explain briefly WHY it may be risky.
-
-[OUTPUT FORMAT] (JSON array)
-Respond with a JSON array that matches the output schema.
+[OUTPUT FORMAT] (JSON)
+Format the response in JSON with keys: summary, risks, recommendations, confidence_scores, and flagged_text_snippets.
 `,
 });
 
