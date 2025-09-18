@@ -10,3 +10,4 @@ import '@/ai/flows/compare-documents.ts';
 import '@/ai/flows/predict-risk.ts';
 import '@/ai/flows/predict-outcome.ts';
 import '@/ai/flows/personalize-legal-advice.ts';
+import '@/ai/flows/translate-legal-text.ts';
