@@ -17,27 +17,29 @@ const IdentifyRisksAndSuggestCounterProposalsInputSchema = z.object({
   legalDocument: z
     .string()
     .describe('The legal document text to analyze for potential risks.'),
-  role: z.string().describe('The role of the user (tenant, landlord, freelancer, SMB, etc.)'),
 });
 export type IdentifyRisksAndSuggestCounterProposalsInput = z.infer<
   typeof IdentifyRisksAndSuggestCounterProposalsInputSchema
 >;
 
-const IdentifyRisksAndSuggestCounterProposalsOutputSchema = z.object({
-  summary: z.string().describe('A summary of the identified risks.'),
-  risks: z
-    .array(
-      z.object({
-        clause: z.string().describe('The specific clause identified as risky.'),
-        summary: z.string().describe('A plain language summary of the clause.'),
-        counterProposal: z
-          .string()
-          .describe('A suggested counter-proposal for the risky clause.'),
-        riskLevel: z.enum(['risky', 'standard', 'negotiable']).describe('The risk level of the clause.'),
-      })
-    )
-    .describe('A list of identified risks, their summaries, and suggested counter-proposals.'),
-});
+const IdentifyRisksAndSuggestCounterProposalsOutputSchema = z.array(
+  z.object({
+    clause_type: z.enum([
+        "Term",
+        "Payment",
+        "Deposit",
+        "Termination",
+        "Liability",
+        "Confidentiality",
+        "Governing Law",
+        "Arbitration",
+        "Miscellaneous"
+    ]).describe("The category of the clause."),
+    clause_text: z.string().describe("The full text of the clause."),
+    risk_flag: z.boolean().describe("Whether the clause is considered risky or unusual."),
+    risk_reason: z.string().nullable().describe("A brief explanation of why the clause is risky. Null if not risky."),
+  })
+);
 export type IdentifyRisksAndSuggestCounterProposalsOutput = z.infer<
   typeof IdentifyRisksAndSuggestCounterProposalsOutputSchema
 >;
@@ -52,17 +54,20 @@ const identifyRisksAndSuggestCounterProposalsPrompt = ai.definePrompt({
   name: 'identifyRisksAndSuggestCounterProposalsPrompt',
   input: {schema: IdentifyRisksAndSuggestCounterProposalsInputSchema},
   output: {schema: IdentifyRisksAndSuggestCounterProposalsOutputSchema},
-  prompt: `You are an AI legal assistant that identifies risks in legal documents and suggests counter-proposals.
+  prompt: `[ROLE]
+You are a contract clause detection assistant.
 
-You will be provided with a legal document and the role of the user. 
-Based on the role, you will identify potential risks, summarize the risky clauses in plain language, and suggest counter-proposals.
+[INPUT]
+Contract text: "{{legalDocument}}"
 
-Legal Document:
-{{legalDocument}}
+[INSTRUCTIONS]
+1. Detect and categorize clauses into one of the following buckets:
+   [Term, Payment, Deposit, Termination, Liability, Confidentiality, Governing Law, Arbitration, Miscellaneous]
+2. Highlight any risky or unusual terms, e.g., unilateral rights, vague timeframes, unlimited liability.
+3. For each clause, explain briefly WHY it may be risky.
 
-Role: {{role}}
-
-Output the summary of the identified risks, and a list of the risky clauses with summaries and counter-proposals. Ensure the riskLevel field is correctly assigned as either \"risky\", \"standard\", or \"negotiable\".
+[OUTPUT FORMAT] (JSON array)
+Respond with a JSON array that matches the output schema.
 `,
 });
 
