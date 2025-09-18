@@ -1,8 +1,7 @@
+
 "use client";
 
 import { useState } from "react";
-import type { SampleDocument } from "@/lib/data";
-import { sampleDocumentData } from "@/lib/data";
 import DocumentUploader from "@/components/document-uploader";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +11,11 @@ export default function Home() {
 
   const handleUploadSample = () => {
     setIsLoading(true);
-    // Simulate AI processing time
+    // Clear any previous analysis from local storage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('documentAnalysis');
+    }
+    // Simulate AI processing time for sample
     setTimeout(() => {
        router.push('/analysis');
       setIsLoading(false);
@@ -21,7 +24,13 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-       <DocumentUploader onUploadSample={handleUploadSample} isLoading={isLoading} />
+       <DocumentUploader 
+        onUploadSample={handleUploadSample} 
+        isLoading={isLoading} 
+        setIsLoading={setIsLoading} 
+      />
     </main>
   );
 }
+
+    

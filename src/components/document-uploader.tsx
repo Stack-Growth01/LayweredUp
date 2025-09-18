@@ -1,5 +1,7 @@
+
 'use client';
 
+import { useState } from 'react';
 import { FileText, Link2, Loader2, UploadCloud, Bot, Upload, Eye, Pencil, Navigation, BookOpen, Volume2, AlertTriangle, CheckCircle2, Download, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,19 +10,71 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
-import Image from 'next/image';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { ThemeToggle } from './theme-toggle';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { summarizeDocument } from '@/ai/flows/summarize-document';
+import type { SampleDocument } from '@/lib/data';
+import { useToast } from '@/hooks/use-toast';
+
 
 type DocumentUploaderProps = {
   onUploadSample: () => void;
   isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
 };
 
-export default function DocumentUploader({ onUploadSample, isLoading }: DocumentUploaderProps) {
+export default function DocumentUploader({ onUploadSample, isLoading, setIsLoading }: DocumentUploaderProps) {
+  const [pastedText, setPastedText] = useState('');
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleDemystifyText = async () => {
+    if (!pastedText.trim()) {
+      toast({
+        title: "No text provided",
+        description: "Please paste some text to analyze.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { summary } = await summarizeDocument({ documentText: pastedText });
+      
+      const newDocument: SampleDocument = {
+        title: "Pasted Document",
+        summary: summary,
+        clauses: [{
+          id: 'p1',
+          text: pastedText,
+          summary_eli5: 'This is the content you pasted.',
+          summary_eli15: 'The AI has analyzed the full text you provided.'
+        }],
+      };
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
+      }
+      
+      router.push('/analysis');
+
+    } catch (error) {
+      console.error("Failed to demystify text:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "Something went wrong while analyzing the text. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
       <header className="absolute top-0 left-0 right-0 flex items-center justify-between h-16 px-4 shrink-0">
@@ -97,9 +151,11 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
                     <Textarea
                         placeholder="Paste your legal document text here..."
                         className="h-48 resize-none"
+                        value={pastedText}
+                        onChange={(e) => setPastedText(e.target.value)}
                     />
                     <Button
-                        onClick={onUploadSample}
+                        onClick={handleDemystifyText}
                         disabled={isLoading}
                         className="w-full"
                     >
@@ -115,9 +171,9 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
             <TabsContent value="connect">
                 <div className="flex flex-col gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Google Drive icon" src="https://picsum.photos/24/24" alt="Google Drive" className="w-6 h-6 mb-2" />Google Drive</Button>
-                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Gmail icon" src="https://picsum.photos/24/24" alt="Gmail" className="w-6 h-6 mb-2" />Gmail</Button>
-                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Slack icon" src="https://picsum.photos/24/24" alt="Slack" className="w-6 h-6 mb-2" />Slack</Button>
+                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Google Drive icon" src="https://picsum.photos/seed/googledrive/24/24" alt="Google Drive" className="w-6 h-6 mb-2" />Google Drive</Button>
+                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Gmail icon" src="https://picsum.photos/seed/gmail/24/24" alt="Gmail" className="w-6 h-6 mb-2" />Gmail</Button>
+                        <Button variant="outline" className="h-20 flex-col"><img data-ai-hint="Slack icon" src="https://picsum.photos/seed/slack/24/24" alt="Slack" className="w-6 h-6 mb-2" />Slack</Button>
                     </div>
                      <Button
                         onClick={onUploadSample}
@@ -454,3 +510,5 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
     </div>
   );
 }
+
+    
