@@ -79,10 +79,24 @@ export default function DocumentUploader({ onUploadSample, isLoading }: Document
               </div>
             </TabsContent>
             <TabsContent value="paste">
-              <Textarea
-                placeholder="Paste your legal document text here..."
-                className="h-48 resize-none"
-              />
+                <div className="flex flex-col gap-4">
+                    <Textarea
+                        placeholder="Paste your legal document text here..."
+                        className="h-48 resize-none"
+                    />
+                    <Button
+                        onClick={onUploadSample}
+                        disabled={isLoading}
+                        className="w-full"
+                    >
+                        {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                        <Bot className="mr-2 h-4 w-4" />
+                        )}
+                        Demystify Text
+                    </Button>
+                </div>
             </TabsContent>
             <TabsContent value="connect">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
