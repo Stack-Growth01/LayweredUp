@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { ScrollArea } from './ui/scroll-area';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
+import { Label } from './ui/label';
 
 const riskIcons = {
     risky: <AlertTriangle className="h-5 w-5 text-destructive" />,
