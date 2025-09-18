@@ -1,5 +1,5 @@
 'use client';
-
+import * as React from 'react';
 import type { SampleDocument, Clause as ClauseType } from "@/lib/data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
