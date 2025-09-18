@@ -18,7 +18,10 @@ const ExplainLegalClauseInputSchema = z.object({
 export type ExplainLegalClauseInput = z.infer<typeof ExplainLegalClauseInputSchema>;
 
 const ExplainLegalClauseOutputSchema = z.object({
-  explanation: z.string().describe('The plain language explanation of the legal clause.'),
+  original_clause: z.string().describe("The original clause text."),
+  eli5_summary: z.string().describe("A very simple explanation of the clause, as if for a 5-year-old."),
+  eli15_summary: z.string().describe("A more detailed, but still jargon-free, explanation of the clause, as if for a 15-year-old."),
+  disclaimer: z.string().describe("A standard disclaimer that this is not legal advice."),
 });
 export type ExplainLegalClauseOutput = z.infer<typeof ExplainLegalClauseOutputSchema>;
 
@@ -30,11 +33,22 @@ const prompt = ai.definePrompt({
   name: 'explainLegalClausePrompt',
   input: {schema: ExplainLegalClauseInputSchema},
   output: {schema: ExplainLegalClauseOutputSchema},
-  prompt: `You are a lawyer specializing in plain language explanations of legal clauses.
+  prompt: `You are a legal explainer assistant. You DO NOT provide legal advice. You only simplify text while keeping accuracy.
 
-  Explain the following legal clause in plain language:
+[INSTRUCTIONS]
+1. Explain the clause at two levels:
+- **ELI5** → very simple, grade 8, like explaining to a teenager.
+- **ELI15** → moderately detailed, grade 10, but still jargon-free.
+2. Avoid adding extra meaning not present in the text.
+3. Keep tone neutral, supportive, and clear.
+4. Do not say "I am not a lawyer" repeatedly — instead, add a short disclaimer once.
 
-  {{clause}}`,
+[INPUT]
+Clause: "{{clause}}"
+
+[OUTPUT FORMAT] (JSON)
+Respond with a JSON object that matches the output schema.
+`,
 });
 
 const explainLegalClauseFlow = ai.defineFlow(
