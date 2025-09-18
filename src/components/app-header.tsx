@@ -16,7 +16,7 @@ type AppHeaderProps = {
 export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
   const handleDownload = () => {
-    if (!document) return;
+    if (typeof window === 'undefined' || !document) return;
 
     const risks = document.clauses.filter((c: any) => c.risk && c.risk !== 'standard');
     const counterProposals = risks.filter((r: any) => r.counterProposal);
