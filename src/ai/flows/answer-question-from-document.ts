@@ -17,10 +17,9 @@ const AnswerQuestionFromDocumentInputSchema = z.object({
 export type AnswerQuestionFromDocumentInput = z.infer<typeof AnswerQuestionFromDocumentInputSchema>;
 
 const AnswerQuestionFromDocumentOutputSchema = z.object({
-  question: z.string().describe("The original user question."),
+  user_question: z.string().describe("The original user question."),
   answer: z.string().describe("The answer to the user's question, based only on the contract text."),
-  supporting_clause: z.string().describe("The specific clause from the contract that supports the answer. If not found, this will be an empty string."),
-  certainty: z.enum(["high", "low"]).describe("The model's confidence in the answer. 'low' if the information is not found or ambiguous.")
+  sourceClauseText: z.string().describe("The specific clause from the contract that supports the answer. If not found, this will be an empty string."),
 });
 export type AnswerQuestionFromDocumentOutput = z.infer<typeof AnswerQuestionFromDocumentOutputSchema>;
 
@@ -40,11 +39,11 @@ User question: "{user_question}"
 Contract text: "{contract_text}"
 
 [INSTRUCTIONS]
-1. Only answer using the contract.
-2. Quote the supporting clause when possible.
-3. If not found, say: "This clause is unclear — please consult a lawyer."
-4. Avoid assumptions or invented answers.
-5. Set certainty to 'low' if the answer is not explicitly found in the text.
+1. Search all clauses for relevant answers.
+2. Always cite the clause text where the answer comes from in the 'sourceClauseText' field.
+3. Provide plain English answers (ELI15 level).
+4. If the answer is unclear, ambiguous, or not present in the contract, the 'answer' field should be: "This clause is unclear — please consult a lawyer." and 'sourceClauseText' should be empty.
+5. Avoid assumptions or invented answers.
 
 [OUTPUT FORMAT] (JSON)
 Respond with a JSON object that matches the output schema.

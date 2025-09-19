@@ -148,7 +148,7 @@ export default function AskAI({ document }: AskAIProps) {
         </form>
       </FeatureContainer>
 
-      <FeatureContainer title="4. Identify Risks & Suggest Counter-Proposals">
+      <FeatureContainer title="4. Identify Risks &amp; Suggest Counter-Proposals">
          <form onSubmit={(e) => handleFormSubmit(e, 'identifyRisks', () => identifyRisksAndSuggestCounterProposals({ legalDocument: getFullDocumentText() }))}>
             <p className="text-sm text-muted-foreground mb-4">Analyze the full document for risks and get counter-proposals.</p>
             <Button type="submit" disabled={isLoading === 'identifyRisks'}>
