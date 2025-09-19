@@ -44,11 +44,11 @@ Your goal is to analyze the provided contract text, identify key clauses with qu
 1.  Read the entire document to understand its context.
 2.  Identify clauses that have standard market rates, terms, or language (e.g., Security Deposit, Notice Period, Liability Caps, Termination Fees).
 3.  For each identified clause, create an object containing:
-    -   `clauseId`: A simple identifier for the clause (e.g., C1, C2).
-    -   `type`: The type of clause (e.g., "Security Deposit").
-    -   `standard`: The market standard value or range (e.g., "1-2 months' rent").
-    -   `contractValue`: The value specified in the actual contract (e.g., "6 months' rent").
-    -   `comment`: A brief explanation of the deviation and its potential impact (e.g., "Uncommon, heavily favors landlord.").
+    -   \`clauseId\`: A simple identifier for the clause (e.g., C1, C2).
+    -   \`type\`: The type of clause (e.g., "Security Deposit").
+    -   \`standard\`: The market standard value or range (e.g., "1-2 months' rent").
+    -   \`contractValue\`: The value specified in the actual contract (e.g., "6 months' rent").
+    -   \`comment\`: A brief explanation of the deviation and its potential impact (e.g., "Uncommon, heavily favors landlord.").
 4.  Focus on material deviations from the norm. If a clause is standard, you do not need to include it.
 5.  Return the results as a JSON array. If no significant deviations are found, return an empty array.
 
