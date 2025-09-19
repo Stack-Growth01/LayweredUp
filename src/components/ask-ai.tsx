@@ -24,6 +24,7 @@ import { translateLegalText } from '@/ai/flows/translate-legal-text';
 import { generateCaseTimeline } from '@/ai/flows/generate-case-timeline';
 import { generateCostForecast } from '@/ai/flows/generate-cost-forecast';
 import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
+import { checkMissingContracts } from '@/ai/flows/check-missing-contracts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type AskAIProps = {
@@ -337,6 +338,26 @@ export default function AskAI({ document }: AskAIProps) {
             Generate Forecast
           </Button>
           {results.cost && <ResultDisplay result={results.cost} />}
+        </form>
+      </FeatureContainer>
+
+      <FeatureContainer title="13. Check Missing Contracts">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          const mainContractType = formData.get('mainContractType') as string;
+          const mainContractContent = formData.get('mainContractContent') as string;
+          runFlow('checkMissing', () => checkMissingContracts({ mainContractType, mainContractContent }));
+        }}>
+          <Label htmlFor="mainContractType">Contract Type</Label>
+          <Input id="mainContractType" name="mainContractType" defaultValue="Employment Agreement" className="mt-1 mb-2" />
+          <Label htmlFor="mainContractContent">Contract Content</Label>
+          <Textarea id="mainContractContent" name="mainContractContent" defaultValue="This agreement confirms the employment of John Doe..." className="mt-1 mb-2" />
+          <Button type="submit" disabled={isLoading === 'checkMissing'}>
+            {isLoading === 'checkMissing' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Check for Missing Contracts
+          </Button>
+          {results.checkMissing && <ResultDisplay result={results.checkMissing} />}
         </form>
       </FeatureContainer>
     </Accordion>

@@ -12,5 +12,6 @@ import '@/ai/flows/predict-outcome.ts';
 import '@/ai/flows/personalize-legal-advice.ts';
 import '@/ai/flows/translate-legal-text.ts';
 import '@/ai/flows/generate-case-timeline.ts';
-import '@/ai/flows/generate-cost-forecast.ts';
+import '@/ai thorny/flows/generate-cost-forecast.ts';
 import '@/ai/flows/parse-uploaded-document.ts';
+import '@/ai/flows/check-missing-contracts.ts';
