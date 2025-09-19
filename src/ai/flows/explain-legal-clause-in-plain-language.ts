@@ -19,8 +19,8 @@ export type ExplainLegalClauseInput = z.infer<typeof ExplainLegalClauseInputSche
 
 const ExplainLegalClauseOutputSchema = z.object({
   original_clause: z.string().describe("The original clause text."),
-  eli5_summary: z.string().describe("A very simple explanation of the clause, as if for a 5-year-old."),
-  eli15_summary: z.string().describe("A more detailed, but still jargon-free, explanation of the clause, as if for a 15-year-old."),
+  simple_explanation: z.string().describe("A very simple explanation of the clause, as if for a 10-year-old, using analogies where possible."),
+  detailed_explanation: z.string().describe("A more detailed, but still jargon-free, explanation of the clause."),
   disclaimer: z.string().describe("A standard disclaimer that this is not legal advice."),
 });
 export type ExplainLegalClauseOutput = z.infer<typeof ExplainLegalClauseOutputSchema>;
@@ -33,15 +33,15 @@ const prompt = ai.definePrompt({
   name: 'explainLegalClausePrompt',
   input: {schema: ExplainLegalClauseInputSchema},
   output: {schema: ExplainLegalClauseOutputSchema},
-  prompt: `You are a legal explainer assistant. You DO NOT provide legal advice. You only simplify text while keeping accuracy.
+  prompt: `You are a legal explainer assistant who is great at simplifying complex topics. You DO NOT provide legal advice.
 
 [INSTRUCTIONS]
 1. Explain the clause at two levels:
-- **ELI5** → very simple, grade 8, like explaining to a teenager.
-- **ELI15** → moderately detailed, grade 10, but still jargon-free.
-2. Avoid adding extra meaning not present in the text.
-3. Keep tone neutral, supportive, and clear.
-4. Do not say "I am not a lawyer" repeatedly — instead, add a short disclaimer once.
+- **Simple Explanation**: Explain it like you're talking to a 10-year-old. Use a simple analogy or real-life example if it helps. Keep it to 1-2 short sentences.
+- **Detailed Explanation**: Provide a more detailed, but still completely jargon-free, explanation suitable for a teenager or adult who is not a lawyer.
+2. Ensure you do not lose the core legal meaning of the clause in your simplification.
+3. Keep the tone neutral, supportive, and clear.
+4. Add a standard, brief disclaimer that this is not legal advice.
 
 [INPUT]
 Clause: "{{clause}}"
