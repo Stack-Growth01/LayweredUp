@@ -1,16 +1,18 @@
 import type { SampleDocument } from '@/lib/data';
-import { AlertTriangle, CheckCircle2, Handshake, Bot, ShieldQuestion, Copy } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Handshake, Bot, ShieldQuestion, Copy, Volume2 } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { cn } from '@/lib/utils';
 
 const riskIcons = {
-    risky: '⚠️',
-    negotiable: '🤝',
-    standard: '✅',
+    risky: <AlertTriangle className="h-5 w-5 text-destructive" />,
+    negotiable: <Handshake className="h-5 w-5 text-accent-foreground" />,
+    standard: <CheckCircle2 className="h-5 w-5 text-green-500" />,
 };
 
 const riskBadges = {
@@ -42,16 +44,46 @@ export default function RightSidebar({ document }: { document: SampleDocument })
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {risks.map(risk => (
-                                <div key={risk.id} className="flex items-start gap-3">
-                                    <div className="text-xl mt-0.5">{riskIcons[risk.risk!]}</div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <p className="font-semibold">{risk.clauseTitle}</p>
-                                            {riskBadges[risk.risk!]}
+                                <Popover key={risk.id}>
+                                    <PopoverTrigger asChild>
+                                        <div className="flex items-start gap-3 cursor-pointer p-2 rounded-md hover:bg-muted">
+                                            <div className="mt-0.5">{risk.risk ? riskIcons[risk.risk] : null}</div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="font-semibold">{risk.clauseTitle}</p>
+                                                    {risk.risk ? riskBadges[risk.risk] : null}
+                                                </div>
+                                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{risk.summary_eli15}</p>
+                                            </div>
                                         </div>
-                                        <p className="text-sm text-muted-foreground mt-1">{risk.summary_eli15}</p>
-                                    </div>
-                                </div>
+                                    </PopoverTrigger>
+                                     <PopoverContent className="w-96 shadow-xl" align="start">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                {risk.risk ? riskIcons[risk.risk] : null}
+                                                <h4 className="font-semibold text-lg capitalize">{risk.risk} Clause</h4>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground">{risk.summary_eli15}</p>
+                                            
+                                            {risk.counterProposal && (
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <Bot className="h-5 w-5 text-primary"/>
+                                                        <h5 className="font-semibold text-primary">Suggested Counter-Proposal</h5>
+                                                    </div>
+                                                    <p className="text-sm bg-primary/10 p-3 rounded-md border border-primary/20">{risk.counterProposal}</p>
+                                                </div>
+                                            )}
+                                            
+                                            <div className="flex items-center justify-between mt-4">
+                                                <Button variant="ghost" size="sm">
+                                                    <Volume2 className="h-4 w-4 mr-2" />
+                                                    Read aloud
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             ))}
                         </CardContent>
                     </Card>
