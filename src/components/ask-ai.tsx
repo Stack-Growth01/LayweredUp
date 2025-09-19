@@ -23,6 +23,7 @@ import { personalizeLegalAdvice } from '@/ai/flows/personalize-legal-advice';
 import { translateLegalText } from '@/ai/flows/translate-legal-text';
 import { generateCaseTimeline } from '@/ai/flows/generate-case-timeline';
 import { generateCostForecast } from '@/ai/flows/generate-cost-forecast';
+import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type AskAIProps = {
@@ -78,6 +79,17 @@ export default function AskAI({ document }: AskAIProps) {
 
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
+       <FeatureContainer title="0. Parse Uploaded Document">
+        <form onSubmit={(e) => handleFormSubmit(e, 'parse', () => parseUploadedDocument({ documentText: getFullDocumentText() }))}>
+            <p className="text-sm text-muted-foreground mb-4">Extract structured data from the document.</p>
+            <Button type="submit" disabled={isLoading === 'parse'}>
+            {isLoading === 'parse' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Parse Document
+          </Button>
+          {results.parse && <ResultDisplay result={results.parse} />}
+        </form>
+      </FeatureContainer>
+
       <FeatureContainer title="1. Summarize Document">
         <form onSubmit={(e) => handleFormSubmit(e, 'summarize', () => summarizeDocument({ documentText: getFullDocumentText() }))}>
             <p className="text-sm text-muted-foreground mb-4">Get a TL;DR summary of the entire document.</p>

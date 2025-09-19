@@ -13,3 +13,4 @@ import '@/ai/flows/personalize-legal-advice.ts';
 import '@/ai/flows/translate-legal-text.ts';
 import '@/ai/flows/generate-case-timeline.ts';
 import '@/ai/flows/generate-cost-forecast.ts';
+import '@/ai/flows/parse-uploaded-document.ts';
