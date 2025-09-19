@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FileUp, Share2, Download, User } from 'lucide-react';
@@ -16,7 +17,7 @@ type AppHeaderProps = {
 export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
   const handleDownload = () => {
-    if (typeof window !== 'undefined' && document) {
+    if (typeof window !== 'undefined') {
       const risks = document.clauses.filter((c: any) => c.risk && c.risk !== 'standard');
       const counterProposals = risks.filter((r: any) => r.counterProposal);
 
