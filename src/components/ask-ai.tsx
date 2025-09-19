@@ -176,33 +176,21 @@ export default function AskAI({ document }: AskAIProps) {
         </form>
       </FeatureContainer>
 
-      <FeatureContainer title="6. Multi-Document Cross-Check">
+      <FeatureContainer title="6. Compare Contract Versions">
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
-          const docId1 = formData.get('docId1') as string;
           const docText1 = formData.get('docText1') as string;
-          const docId2 = formData.get('docId2') as string;
           const docText2 = formData.get('docText2') as string;
-          runFlow('compare', () => compareDocuments({ docId1, docText1, docId2, docText2 }));
+          runFlow('compare', () => compareDocuments({ docText1, docText2 }));
         }}>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label htmlFor="docId1">Doc 1 ID</Label>
-              <Input id="docId1" name="docId1" defaultValue="EmploymentAgreement.pdf" className="mt-1" />
-            </div>
-            <div>
-              <Label htmlFor="docId2">Doc 2 ID</Label>
-              <Input id="docId2" name="docId2" defaultValue="NDA.pdf" className="mt-1" />
-            </div>
-          </div>
-          <Label htmlFor="docText1">Document 1 Text</Label>
-          <Textarea id="docText1" name="docText1" defaultValue={document.clauses.slice(0, 5).map(c => c.text).join('\n')} className="mt-1 mb-2" />
-          <Label htmlFor="docText2">Document 2 Text</Label>
-          <Textarea id="docText2" name="docText2" defaultValue={document.clauses.slice(5, 10).map(c => c.text).join('\n')} className="mt-1 mb-2" />
+          <Label htmlFor="docText1">Old Version Text</Label>
+          <Textarea id="docText1" name="docText1" defaultValue={document.clauses.map(c => c.text).join('\n')} className="mt-1 mb-4" />
+          <Label htmlFor="docText2">New Version Text</Label>
+          <Textarea id="docText2" name="docText2" defaultValue={document.clauses.map(c => c.text.replace('60 days', '30 days')).join('\n')} className="mt-1 mb-4" />
           <Button type="submit" disabled={isLoading === 'compare'}>
             {isLoading === 'compare' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Cross-Check Documents
+            Compare Versions
           </Button>
           {results.compare && <ResultDisplay result={results.compare} />}
         </form>

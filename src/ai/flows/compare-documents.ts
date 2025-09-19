@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview A contract comparison AI agent for cross-checking documents.
+ * @fileOverview A contract comparison AI agent for finding differences between two versions of a document.
  *
- * - compareDocuments - A function that compares two legal documents for conflicts.
+ * - compareDocuments - A function that compares two versions of a legal document.
  * - CompareDocumentsInput - The input type for the compareDocuments function.
  * - CompareDocumentsOutput - The return type for the compareDocuments function.
  */
@@ -11,19 +11,17 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 const CompareDocumentsInputSchema = z.object({
-  docId1: z.string().describe('The identifier for the first document.'),
-  docText1: z.string().describe('The text content of the first contract (Contract A).'),
-  docId2: z.string().describe('The identifier for the second document.'),
-  docText2: z.string().describe('The text content of the second contract (Contract B).'),
+  docText1: z.string().describe('The text content of the old version of the contract.'),
+  docText2: z.string().describe('The text content of the new version of the contract.'),
 });
 export type CompareDocumentsInput = z.infer<typeof CompareDocumentsInputSchema>;
 
 const CompareDocumentsOutputSchema = z.array(
   z.object({
-    docId1: z.string().describe('The identifier of the first document.'),
-    docId2: z.string().describe('The identifier of the second document.'),
-    conflict: z.string().describe('A description of the conflicting or inconsistent clauses found between the two documents (e.g., "Different governing law clauses (India vs. Singapore)").'),
-    recommendation: z.string().describe('The suggested resolution to standardize the conflicting clauses (e.g., "Standardize governing law across contracts.").'),
+    clauseType: z.string().describe('The type of clause that has changed (e.g., "Termination").'),
+    oldText: z.string().describe('The relevant text from the old version.'),
+    newText: z.string().describe('The relevant text from the new version.'),
+    changeImpact: z.string().describe('A plain-language explanation of the change and its potential impact.'),
   })
 );
 export type CompareDocumentsOutput = z.infer<typeof CompareDocumentsOutputSchema>;
@@ -37,29 +35,24 @@ const prompt = ai.definePrompt({
   input: {schema: CompareDocumentsInputSchema},
   output: {schema: CompareDocumentsOutputSchema},
   prompt: `[ROLE]
-You are a legal AI assistant specializing in checking for consistency across multiple contracts for the same user.
+You are a legal AI assistant specializing in comparing two versions of the same contract to create a "redline" or "delta" view.
 
 [TASK]
-Your goal is to compare two documents (e.g., an Employment Agreement vs. an NDA) and flag any contradictions or inconsistencies between them.
+Your goal is to compare two versions of a document and highlight what has changed, explaining the impact of those changes.
 
 [INSTRUCTIONS]
-1.  Carefully read both contract texts provided.
-2.  Compare clauses across the documents, specifically looking for conflicting terms. Pay close attention to:
-    - Governing law and jurisdiction.
-    - IP (Intellectual Property) ownership terms.
-    - Confidentiality obligations.
-    - Non-compete clauses and their scopes.
-    - Termination conditions.
-3.  For each conflict you find, create an object that clearly describes the contradiction and suggests a resolution.
-4.  If there are no conflicts, return an empty array.
+1.  Carefully read both contract texts provided (Old Version and New Version).
+2.  Go through the documents clause by clause and identify any differences.
+3.  For each material change you find, create an object describing the change. Include:
+    - The type of clause affected.
+    - The specific text from the old version.
+    - The new text in the new version.
+    - A plain-language explanation of the impact (e.g., "Reduces time for tenant to vacate, which is a higher risk for the tenant.").
+4.  If there are no differences, return an empty array.
 
 [INPUT]
-Document 1 ID: "{docId1}"
-Document 1 Text: "{docText1}"
-
-Document 2 ID: "{docId2}"
-Document 2 Text: "{docText2}"
-
+Old Version Text: "{docText1}"
+New Version Text: "{docText2}"
 
 [OUTPUT FORMAT] (JSON Array)
 Respond with a JSON array of objects that matches the output schema.
