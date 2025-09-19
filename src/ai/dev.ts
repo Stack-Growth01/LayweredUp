@@ -16,3 +16,4 @@ import '@/ai/flows/generate-cost-forecast.ts';
 import '@/ai/flows/parse-uploaded-document.ts';
 import '@/ai/flows/check-missing-contracts.ts';
 import '@/ai/flows/generate-legal-lens-summary.ts';
+import '@/ai/flows/track-compliance.ts';

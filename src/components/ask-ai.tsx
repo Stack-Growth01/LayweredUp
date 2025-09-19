@@ -26,6 +26,7 @@ import { generateCostForecast } from '@/ai/flows/generate-cost-forecast';
 import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
 import { checkMissingContracts } from '@/ai/flows/check-missing-contracts';
 import { generateLegalLensSummary } from '@/ai/flows/generate-legal-lens-summary';
+import { trackCompliance } from '@/ai/flows/track-compliance';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type AskAIProps = {
@@ -370,6 +371,17 @@ export default function AskAI({ document }: AskAIProps) {
             Generate Summaries
           </Button>
           {results.legalLens && <ResultDisplay result={results.legalLens} />}
+        </form>
+      </FeatureContainer>
+
+      <FeatureContainer title="15. Track Compliance">
+        <form onSubmit={(e) => handleFormSubmit(e, 'trackCompliance', () => trackCompliance({ documentText: getFullDocumentText() }))}>
+            <p className="text-sm text-muted-foreground mb-4">Extract key dates and obligations from the document.</p>
+            <Button type="submit" disabled={isLoading === 'trackCompliance'}>
+            {isLoading === 'trackCompliance' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Track Compliance
+          </Button>
+          {results.trackCompliance && <ResultDisplay result={results.trackCompliance} />}
         </form>
       </FeatureContainer>
 
