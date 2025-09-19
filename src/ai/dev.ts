@@ -19,3 +19,4 @@ import '@/ai/flows/generate-legal-lens-summary.ts';
 import '@/ai/flows/track-compliance.ts';
 import '@/ai/flows/process-batch-contracts.ts';
 import '@/ai/flows/compare-to-market-standards.ts';
+import '@/ai/flows/flag-uncertain-clauses.ts';
