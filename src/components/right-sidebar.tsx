@@ -8,9 +8,9 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 
 const riskIcons = {
-    risky: <AlertTriangle className="h-5 w-5 text-destructive" />,
-    negotiable: <Handshake className="h-5 w-5 text-accent-foreground" />,
-    standard: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+    risky: '⚠️',
+    negotiable: '🤝',
+    standard: '✅',
 };
 
 const riskBadges = {
@@ -42,8 +42,8 @@ export default function RightSidebar({ document }: { document: SampleDocument })
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {risks.map(risk => (
-                                <div key={risk.id} className="flex items-start gap-4">
-                                    <div>{riskIcons[risk.risk!]}</div>
+                                <div key={risk.id} className="flex items-start gap-3">
+                                    <div className="text-xl mt-0.5">{riskIcons[risk.risk!]}</div>
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between">
                                             <p className="font-semibold">{risk.clauseTitle}</p>

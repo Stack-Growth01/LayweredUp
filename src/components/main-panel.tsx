@@ -59,9 +59,9 @@ const Clause = ({ clause, summaryType }: { clause: ClauseType, summaryType: 'eli
                     )}
                     
                     <div className="flex items-center justify-between mt-4">
-                        <Button variant="ghost" size="icon">
-                            <Volume2 className="h-4 w-4" />
-                            <span className="sr-only">Read aloud</span>
+                        <Button variant="ghost" size="sm">
+                            <Volume2 className="h-4 w-4 mr-2" />
+                            Read aloud
                         </Button>
                     </div>
                 </div>
