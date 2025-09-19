@@ -25,6 +25,7 @@ import { generateCaseTimeline } from '@/ai/flows/generate-case-timeline';
 import { generateCostForecast } from '@/ai/flows/generate-cost-forecast';
 import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
 import { checkMissingContracts } from '@/ai/flows/check-missing-contracts';
+import { generateLegalLensSummary } from '@/ai/flows/generate-legal-lens-summary';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type AskAIProps = {
@@ -360,6 +361,18 @@ export default function AskAI({ document }: AskAIProps) {
           {results.checkMissing && <ResultDisplay result={results.checkMissing} />}
         </form>
       </FeatureContainer>
+
+      <FeatureContainer title="14. Generate Legal Lens Summary">
+        <form onSubmit={(e) => handleFormSubmit(e, 'legalLens', () => generateLegalLensSummary({ documentText: getFullDocumentText() }))}>
+            <p className="text-sm text-muted-foreground mb-4">Generate summaries for different audiences (Lawyer, Layman, Risk-focused).</p>
+            <Button type="submit" disabled={isLoading === 'legalLens'}>
+            {isLoading === 'legalLens' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Generate Summaries
+          </Button>
+          {results.legalLens && <ResultDisplay result={results.legalLens} />}
+        </form>
+      </FeatureContainer>
+
     </Accordion>
   );
 }
