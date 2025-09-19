@@ -42,9 +42,9 @@ Your task is to read the provided document, identify clauses that are ambiguous,
 1.  Parse the document to identify individual clauses. For each clause, create a simple ID (e.g., C1, C2).
 2.  Analyze each clause for ambiguity. Look for undefined terms, subjective language (e.g., "reasonable", "best efforts"), or conflicting statements.
 3.  For each clause you identify as ambiguous, create an object that includes:
-    -   `clauseId`: The identifier for the clause.
-    -   `confidence`: A score from 0-100 representing your confidence in the clarity of the clause. A lower score means more ambiguity.
-    -   `warning`: If the confidence score is below 80, provide a warning like "Ambiguous [clause type] clause. Seek legal advice."
+    -   'clauseId': The identifier for the clause.
+    -   'confidence': A score from 0-100 representing your confidence in the clarity of the clause. A lower score means more ambiguity.
+    -   'warning': If the confidence score is below 80, provide a warning like "Ambiguous [clause type] clause. Seek legal advice."
 4.  Only include clauses in the output array that you deem to have some level of uncertainty (i.e., confidence < 100). If all clauses are clear, return an empty array.
 
 [INPUT]
