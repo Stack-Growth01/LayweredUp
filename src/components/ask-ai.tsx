@@ -27,6 +27,7 @@ import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
 import { checkMissingContracts } from '@/ai/flows/check-missing-contracts';
 import { generateLegalLensSummary } from '@/ai/flows/generate-legal-lens-summary';
 import { trackCompliance } from '@/ai/flows/track-compliance';
+import { compareToMarketStandards } from '@/ai/flows/compare-to-market-standards';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type AskAIProps = {
@@ -382,6 +383,17 @@ export default function AskAI({ document }: AskAIProps) {
             Track Compliance
           </Button>
           {results.trackCompliance && <ResultDisplay result={results.trackCompliance} />}
+        </form>
+      </FeatureContainer>
+
+      <FeatureContainer title="16. Compare to Market Standards">
+        <form onSubmit={(e) => handleFormSubmit(e, 'marketStandards', () => compareToMarketStandards({ documentText: getFullDocumentText() }))}>
+            <p className="text-sm text-muted-foreground mb-4">Compare contract clauses against industry benchmarks.</p>
+            <Button type="submit" disabled={isLoading === 'marketStandards'}>
+            {isLoading === 'marketStandards' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Compare
+          </Button>
+          {results.marketStandards && <ResultDisplay result={results.marketStandards} />}
         </form>
       </FeatureContainer>
 
