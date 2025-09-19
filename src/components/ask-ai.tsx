@@ -114,7 +114,7 @@ export default function AskAI({ document }: AskAIProps) {
           runFlow('explain', () => explainLegalClause({ clause }));
         }}>
           <Label htmlFor="clause-text">Clause to Explain</Label>
-          <Textarea id="clause-text" name="clause" defaultValue={document.clauses[4].text} className="mt-1 mb-2" />
+          <Textarea id="clause-text" name="clause" defaultValue={document.clauses[0].text} className="mt-1 mb-2" />
           <Button type="submit" disabled={isLoading === 'explain'}>
             {isLoading === 'explain' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Explain Clause
@@ -412,3 +412,5 @@ export default function AskAI({ document }: AskAIProps) {
     </Accordion>
   );
 }
+
+    
