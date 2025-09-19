@@ -17,7 +17,12 @@ const SummarizeDocumentInputSchema = z.object({
 export type SummarizeDocumentInput = z.infer<typeof SummarizeDocumentInputSchema>;
 
 const SummarizeDocumentOutputSchema = z.object({
-  summary: z.string().describe('A concise, one-page TL;DR of the contract in Markdown format.'),
+  overview: z.string().describe("A one-page summary of the contract's obligations, payments, rights, and risks at a Grade 10 reading level."),
+  keyRisks: z.array(z.object({
+    risk: z.string().describe("A key risk identified in the document."),
+    impact: z.string().describe("The potential impact of the risk."),
+  })).describe("An array of 3-5 key risks with plain explanations."),
+  recommendedActions: z.array(z.string()).describe("A list of recommended next steps, such as negotiations or adding clauses."),
 });
 export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
@@ -36,18 +41,12 @@ You are a legal simplifier. Your job is to produce a one-page TL;DR of the contr
 Contract text: "{documentText}"
 
 [INSTRUCTIONS]
-1. Break into sections:
-   - Key Terms
-   - Risks ⚠️
-   - Action Items ✅
-2. Keep it concise but structured.
-3. Focus on practical implications for the signer.
+1.  **Overview**: Create a concise summary of the key obligations, payments, rights, and overall purpose of the document. Keep the language at a Grade 10 reading level.
+2.  **Key Risks**: Identify the top 3-5 most significant risks for the user. For each risk, describe the risk itself and its potential impact in a simple, clear way.
+3.  **Recommended Actions**: Based on the risks and the document content, provide a list of concrete, actionable next steps for the user. These could include specific points to negotiate, clauses to clarify, or related documents to request (like an NDA).
 
-[OUTPUT FORMAT] (JSON with a single key "summary" containing Markdown)
-Example:
-{
-  "summary": "# Contract TL;DR\\n**Key Terms**\\n- Term: 12 months\\n- Rent: $2,000/month\\n\\n**Risks ⚠️**\\n- Automatic rent increases allowed.\\n- Tenant responsible for all damages.\\n\\n**Action Items ✅**\\n- Clarify rent increase notice period.\\n- Negotiate damage liability."
-}
+[OUTPUT FORMAT] (JSON)
+Respond with a JSON object that matches the output schema.
 `,
 });
 
