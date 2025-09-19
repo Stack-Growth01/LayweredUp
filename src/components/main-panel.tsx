@@ -1,3 +1,4 @@
+
 'use client';
 import * as React from 'react';
 import type { SampleDocument, Clause as ClauseType } from "@/lib/data";
@@ -75,48 +76,49 @@ export default function MainPanel({ document }: { document: SampleDocument }) {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="px-6 py-3 border-b bg-card">
-                 <Tabs defaultValue="summary" className="w-full">
+            <Tabs defaultValue="summary" className="flex flex-col flex-1 overflow-hidden">
+                <div className="px-6 py-3 border-b bg-card">
                     <TabsList>
                         <TabsTrigger value="summary">Document View</TabsTrigger>
                         <TabsTrigger value="ask_ai">Ask AI</TabsTrigger>
                         <TabsTrigger value="navigator">Clause Navigator</TabsTrigger>
                         <TabsTrigger value="precedent">Precedent Cases</TabsTrigger>
                     </TabsList>
-
-                    <TabsContent value="summary" className="mt-0">
-                        {/* This content is below the tabs but shown for the Document View tab */}
-                    </TabsContent>
-                    <TabsContent value="ask_ai" className="mt-4">
-                        <AskAI document={document} />
-                     </TabsContent>
-                     <TabsContent value="navigator" className="mt-4">
-                        <p className="text-sm text-muted-foreground">Jump to specific clauses in the document.</p>
-                     </TabsContent>
-                      <TabsContent value="precedent" className="mt-4">
-                        <p className="text-sm text-muted-foreground">Related legal precedents and case law.</p>
-                     </TabsContent>
-                </Tabs>
-            </div>
-            <div className="flex items-center justify-between px-6 py-2 border-b">
-                 <h2 className="text-lg font-semibold truncate">{document.title}</h2>
-                 <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Explain like I'm:</span>
-                    <Tabs value={summaryType} onValueChange={(value) => setSummaryType(value as 'eli5' | 'eli15')} className="w-[150px]">
-                        <TabsList className="grid w-full grid-cols-2 h-8">
-                            <TabsTrigger value="eli5" className="text-xs h-6">5</TabsTrigger>
-                            <TabsTrigger value="eli15" className="text-xs h-6">15</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                 </div>
-            </div>
-            <ScrollArea className="flex-1 p-6 lg:p-10 bg-background">
-                <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
-                    {document.clauses.map((clause) => (
-                       <Clause key={clause.id} clause={clause} summaryType={summaryType}/>
-                    ))}
                 </div>
-            </ScrollArea>
+                <div className="flex items-center justify-between px-6 py-2 border-b bg-card">
+                     <h2 className="text-lg font-semibold truncate">{document.title}</h2>
+                     <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Explain like I'm:</span>
+                        <Tabs value={summaryType} onValueChange={(value) => setSummaryType(value as 'eli5' | 'eli15')} className="w-[150px]">
+                            <TabsList className="grid w-full grid-cols-2 h-8">
+                                <TabsTrigger value="eli5" className="text-xs h-6">5</TabsTrigger>
+                                <TabsTrigger value="eli15" className="text-xs h-6">15</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                     </div>
+                </div>
+                
+                <ScrollArea className="flex-1 bg-background">
+                    <div className="p-6 lg:p-10">
+                        <TabsContent value="summary" className="mt-0 ring-offset-0 focus-visible:ring-0">
+                            <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
+                                {document.clauses.map((clause) => (
+                                   <Clause key={clause.id} clause={clause} summaryType={summaryType}/>
+                                ))}
+                            </div>
+                         </TabsContent>
+                         <TabsContent value="ask_ai" className="mt-0 ring-offset-0 focus-visible:ring-0">
+                            <AskAI document={document} />
+                         </TabsContent>
+                         <TabsContent value="navigator" className="mt-0 ring-offset-0 focus-visible:ring-0">
+                            <p className="text-sm text-muted-foreground">Jump to specific clauses in the document.</p>
+                         </TabsContent>
+                          <TabsContent value="precedent" className="mt-0 ring-offset-0 focus-visible:ring-0">
+                            <p className="text-sm text-muted-foreground">Related legal precedents and case law.</p>
+                         </TabsContent>
+                    </div>
+                </ScrollArea>
+            </Tabs>
         </div>
     )
 }
