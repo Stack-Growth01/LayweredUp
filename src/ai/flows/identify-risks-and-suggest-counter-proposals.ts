@@ -63,7 +63,7 @@ const identifyRisksAndSuggestCounterProposalsPrompt = ai.definePrompt({
 
 
 [INPUT]
-Clauses: "{{jsonStringify clauses}}"
+Clauses: {{{clauses}}}
 
 [OUTPUT FORMAT] (JSON Array)
 Format the response as a JSON array of objects that match the output schema.
