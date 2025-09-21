@@ -1,4 +1,5 @@
-import { Folder, Search, File, ChevronDown } from 'lucide-react';
+
+import { Folder, Search, File, ChevronLeft } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Input } from './ui/input';
 import { Card, CardContent } from './ui/card';
@@ -6,19 +7,32 @@ import { ScrollArea } from './ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
+import { cn } from '@/lib/utils';
+import { CollapsibleSidebarButton } from './collapsible-sidebar-button';
 
 type LeftSidebarProps = {
     documentTitle: string;
+    isCollapsed: boolean;
+    onToggleCollapse: () => void;
 };
 
-export default function LeftSidebar({ documentTitle }: LeftSidebarProps) {
+export default function LeftSidebar({ documentTitle, isCollapsed, onToggleCollapse }: LeftSidebarProps) {
   return (
-    <aside className="w-[320px] bg-card border-r flex flex-col shrink-0">
-      <div className="p-4 border-b">
-        <div className="relative">
+    <aside className={cn(
+        "bg-card border-r flex flex-col shrink-0 transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-0" : "w-[320px]"
+    )}>
+      <div className="p-4 border-b flex items-center justify-between relative">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search documents..." className="pl-10" />
         </div>
+        <CollapsibleSidebarButton
+            isCollapsed={isCollapsed}
+            onToggleCollapse={onToggleCollapse}
+            side="left"
+            className="ml-2"
+        />
       </div>
       <ScrollArea className="flex-1">
         <div className="p-4">

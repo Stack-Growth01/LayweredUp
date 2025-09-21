@@ -6,28 +6,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ScrollArea } from "./ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, CheckCircle2, Handshake, Bot, Volume2, Link } from "lucide-react";
-import { Badge } from "./ui/badge";
+import { Bot, Volume2 } from "lucide-react";
 import { Button } from "./ui/button";
 import AskAI from './ask-ai';
-
-const riskIcons = {
-    risky: <AlertTriangle className="h-4 w-4 text-destructive" />,
-    negotiable: <Handshake className="h-4 w-4 text-accent-foreground" />,
-    standard: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-};
-
-const riskColors = {
-    risky: "bg-destructive/10 hover:bg-destructive/20 text-foreground",
-    negotiable: "bg-accent/20 hover:bg-accent/30 text-foreground",
-    standard: "",
-};
-
+import { riskIcons, riskColors } from '@/lib/risk-utils';
 
 const Clause = ({ clause, summaryType }: { clause: ClauseType, summaryType: 'eli5' | 'eli15' }) => {
     const summary = summaryType === 'eli5' ? clause.summary_eli5 : clause.summary_eli15;
     
-    if (!clause.risk) {
+    if (!clause.risk || clause.risk === 'standard') {
         return <span>{clause.text} </span>;
     }
 
@@ -36,7 +23,7 @@ const Clause = ({ clause, summaryType }: { clause: ClauseType, summaryType: 'eli
             <PopoverTrigger asChild>
                 <span className={cn(
                     "cursor-pointer rounded p-0.5 transition-colors",
-                    riskColors[clause.risk],
+                     clause.risk ? riskColors[clause.risk] : '',
                 )}>
                     {clause.text}
                 </span>
@@ -44,7 +31,7 @@ const Clause = ({ clause, summaryType }: { clause: ClauseType, summaryType: 'eli
             <PopoverContent className="w-96 shadow-xl" align="start">
                 <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                        {riskIcons[clause.risk]}
+                        {clause.risk ? riskIcons[clause.risk] : null}
                         <h4 className="font-semibold text-lg capitalize">{clause.risk} Clause</h4>
                     </div>
                     <p className="text-sm text-muted-foreground">{summary}</p>
@@ -103,7 +90,9 @@ export default function MainPanel({ document }: { document: SampleDocument }) {
                         <TabsContent value="summary" className="mt-0 ring-offset-0 focus-visible:ring-0">
                             <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
                                 {document.clauses.map((clause) => (
-                                   <Clause key={clause.id} clause={clause} summaryType={summaryType}/>
+                                   <p key={clause.id} className="inline">
+                                     <Clause clause={clause} summaryType={summaryType}/>
+                                   </p>
                                 ))}
                             </div>
                          </TabsContent>
