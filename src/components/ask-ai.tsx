@@ -1,12 +1,12 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SampleDocument } from '@/lib/data';
 
@@ -29,15 +29,16 @@ import { generateLegalLensSummary } from '@/ai/flows/generate-legal-lens-summary
 import { trackCompliance } from '@/ai/flows/track-compliance';
 import { compareToMarketStandards } from '@/ai/flows/compare-to-market-standards';
 import { flagUncertainClauses } from '@/ai/flows/flag-uncertain-clauses';
+import { generateSuggestedQuestions } from '@/ai/flows/generate-suggested-questions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 type AskAIProps = {
   document: SampleDocument;
 };
 
-const FeatureContainer = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const FeatureContainer = ({ title, children, onOpen }: { title: string; children: React.ReactNode, onOpen?: () => void }) => (
   <AccordionItem value={title}>
-    <AccordionTrigger>{title}</AccordionTrigger>
+    <AccordionTrigger onFocus={onOpen ? () => onOpen() : undefined}>{title}</AccordionTrigger>
     <AccordionContent>
       <div className="p-4 border rounded-md bg-muted/20">
         {children}
@@ -55,6 +56,9 @@ const ResultDisplay = ({ result }: { result: any }) => (
 export default function AskAI({ document }: AskAIProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, any>>({});
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
+  const [question, setQuestion] = useState("What is the late fee for rent?");
+  const [hasGeneratedQuestions, setHasGeneratedQuestions] = useState(false);
   const { toast } = useToast();
 
   const getFullDocumentText = () => document.clauses.map(c => c.text).join('\n\n');
@@ -81,6 +85,25 @@ export default function AskAI({ document }: AskAIProps) {
     e.preventDefault();
     runFlow(flowName, flowFn);
   };
+  
+  const handleGenerateQuestions = async () => {
+    if (hasGeneratedQuestions) return;
+    setIsLoading('suggestedQuestions');
+    try {
+        const result = await generateSuggestedQuestions({ documentText: getFullDocumentText() });
+        setSuggestedQuestions(result.questions);
+        setHasGeneratedQuestions(true);
+    } catch(error) {
+        console.error("Failed to get suggested questions", error);
+        toast({
+            title: "Could not generate suggestions",
+            variant: "destructive"
+        })
+    } finally {
+        setIsLoading(null);
+    }
+  }
+
 
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
@@ -161,15 +184,27 @@ export default function AskAI({ document }: AskAIProps) {
         </form>
       </FeatureContainer>
 
-      <FeatureContainer title="5. Answer Question from Document">
+      <FeatureContainer title="5. Answer Question from Document" onOpen={handleGenerateQuestions}>
         <form onSubmit={(e) => {
           e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const user_question = formData.get('user_question') as string;
-          runFlow('answerQuestion', () => answerQuestionFromDocument({ user_question, contract_text: getFullDocumentText() }));
+          runFlow('answerQuestion', () => answerQuestionFromDocument({ user_question: question, contract_text: getFullDocumentText() }));
         }}>
           <Label htmlFor="user_question">Your Question</Label>
-          <Input id="user_question" name="user_question" defaultValue="What is the late fee for rent?" className="mt-1 mb-2" />
+          <Input id="user_question" name="user_question" value={question} onChange={(e) => setQuestion(e.target.value)} className="mt-1 mb-4" />
+          
+          {suggestedQuestions.length > 0 && (
+              <div className="mb-4">
+                  <p className="text-sm text-muted-foreground mb-2 flex items-center"><Sparkles className="w-4 h-4 mr-2 text-primary" /> AI Suggestions</p>
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedQuestions.map((q, i) => (
+                        <Button key={i} variant="outline" size="sm" type="button" onClick={() => setQuestion(q)}>
+                            {q}
+                        </Button>
+                    ))}
+                  </div>
+              </div>
+          )}
+
           <Button type="submit" disabled={isLoading === 'answerQuestion'}>
             {isLoading === 'answerQuestion' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Get Answer
