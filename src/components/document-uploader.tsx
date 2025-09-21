@@ -33,6 +33,7 @@ type DocumentUploaderProps = {
 export default function DocumentUploader({ onUploadSample, isLoading, setIsLoading }: DocumentUploaderProps) {
   const [pastedText, setPastedText] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -57,7 +58,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     router.push('/analysis');
   };
 
-  const handleFileAnalysis = async (file: File) => {
+  const handleFileAnalysis = async (file: File | null) => {
     if (!file) {
       toast({ title: "No file selected", description: "Please drop or select a file to analyze.", variant: "destructive" });
       return;
@@ -167,14 +168,14 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
     if (file) {
-      handleFileAnalysis(file);
+      setFileToUpload(file);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleFileAnalysis(file);
+      setFileToUpload(file);
     }
   };
 
@@ -226,6 +227,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
               </TabsTrigger>
             </TabsList>
             <TabsContent value="upload">
+              <div className="flex flex-col gap-4">
                 <div 
                   className={cn(
                     "border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors",
@@ -235,17 +237,33 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                   onDragLeave={handleDragLeave}
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
-                  onClick={() => document.getElementById('file-upload-input')?.click()}
                 >
                     <input id="file-upload-input" type="file" className="hidden" accept=".txt,.pdf,.docx" onChange={handleFileSelect} />
                     <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
                     <p className="font-semibold text-foreground">
-                    Drag & drop files here or click to browse
+                    Drag & drop files here
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                    Supports .TXT, .PDF, and .DOCX files
-                    </p>
+                    <p className="text-sm text-muted-foreground mt-2"> or </p>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => document.getElementById('file-upload-input')?.click()}>
+                        Browse Files
+                    </Button>
+                    {fileToUpload && (
+                      <p className="text-sm text-green-600 mt-4">Selected: {fileToUpload.name}</p>
+                    )}
                 </div>
+                <Button
+                    onClick={() => handleFileAnalysis(fileToUpload)}
+                    disabled={isLoading || !fileToUpload}
+                    className="w-full"
+                >
+                    {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                    <Bot className="mr-2 h-4 w-4" />
+                    )}
+                    Demystify File
+                </Button>
+              </div>
             </TabsContent>
             <TabsContent value="paste">
                 <div className="flex flex-col gap-4">
