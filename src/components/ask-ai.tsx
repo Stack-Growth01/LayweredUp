@@ -47,7 +47,7 @@ const FeatureContainer = ({ title, children }: { title: string; children: React.
 );
 
 const ResultDisplay = ({ result }: { result: any }) => (
-  <pre className="mt-4 p-4 bg-background rounded-md border text-sm max-h-96 overflow-auto">
+  <pre className="mt-4 p-4 bg-background rounded-md border text-sm max-h-96 overflow-auto whitespace-pre-wrap">
     {JSON.stringify(result, null, 2)}
   </pre>
 );
@@ -412,5 +412,3 @@ export default function AskAI({ document }: AskAIProps) {
     </Accordion>
   );
 }
-
-    
