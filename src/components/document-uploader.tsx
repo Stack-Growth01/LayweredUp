@@ -41,14 +41,15 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
   const processAndNavigate = async (text: string, title: string) => {
     try {
       const parseResult = await parseUploadedDocument({ documentText: text });
-      const riskResult = await identifyRisksAndSuggestCounterProposals({ legalDocument: text });
+      
+      const riskResult = await identifyRisksAndSuggestCounterProposals({ clauses: parseResult.clauses });
       
       const riskMap = new Map(riskResult.map(r => [r.clauseId, r]));
 
       const newDocument: SampleDocument = {
         title: parseResult.title || title,
         summary: parseResult.summary,
-        clauses: parseResult.clauses.map((c: any) => {
+        clauses: parseResult.clauses.map((c) => {
           const riskInfo = riskMap.get(c.clauseId);
           return {
             id: c.clauseId,

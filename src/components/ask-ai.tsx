@@ -48,10 +48,10 @@ const FeatureContainer = ({ title, children, onOpen }: { title: string; children
 );
 
 const ResultDisplay = ({ result }: { result: any }) => (
-  <pre className="mt-4 p-4 bg-background rounded-md border text-sm max-h-96 overflow-auto whitespace-pre-wrap">
-    {JSON.stringify(result, null, 2)}
-  </pre>
-);
+    <pre className="mt-4 p-4 bg-background rounded-md border text-sm max-h-96 overflow-auto whitespace-pre-wrap break-words">
+      {JSON.stringify(result, null, 2)}
+    </pre>
+  );
 
 export default function AskAI({ document }: AskAIProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export default function AskAI({ document }: AskAIProps) {
     <Accordion type="single" collapsible className="w-full space-y-4">
        <FeatureContainer title="0. Parse Uploaded Document">
         <form onSubmit={(e) => handleFormSubmit(e, 'parse', () => parseUploadedDocument({ documentText: getFullDocumentText() }))}>
-            <p className="text-sm text-muted-foreground mb-4">Extract structured data from the document. This is required for some features below.</p>
+            <p className="text-sm text-muted-foreground mb-4">Extract structured data from the document. This is a required first step for many features below.</p>
             <Button type="submit" disabled={isLoading === 'parse'}>
             {isLoading === 'parse' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Parse Document
@@ -181,14 +181,18 @@ export default function AskAI({ document }: AskAIProps) {
       </FeatureContainer>
 
       <FeatureContainer title="4. Identify Risks &amp; Suggest Counter-Proposals">
-         <form onSubmit={(e) => handleFormSubmit(e, 'identifyRisks', () => identifyRisksAndSuggestCounterProposals({ legalDocument: getFullDocumentText() }))}>
-            <p className="text-sm text-muted-foreground mb-4">Analyze the full document for risks and get counter-proposals.</p>
-            <Button type="submit" disabled={isLoading === 'identifyRisks'}>
-            {isLoading === 'identifyRisks' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Identify Risks
-          </Button>
-          {results.identifyRisks && <ResultDisplay result={results.identifyRisks} />}
-        </form>
+         {results.parse ? (
+            <form onSubmit={(e) => handleFormSubmit(e, 'identifyRisks', () => identifyRisksAndSuggestCounterProposals({ clauses: results.parse.clauses }))}>
+                <p className="text-sm text-muted-foreground mb-4">Analyze the full document for risks and get counter-proposals.</p>
+                <Button type="submit" disabled={isLoading === 'identifyRisks'}>
+                {isLoading === 'identifyRisks' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Identify Risks
+              </Button>
+              {results.identifyRisks && <ResultDisplay result={results.identifyRisks} />}
+            </form>
+         ) : (
+            <p className="text-sm text-muted-foreground">Please run "Parse Uploaded Document" first to provide the clauses for analysis.</p>
+         )}
       </FeatureContainer>
 
       <FeatureContainer title="5. Answer Question from Document" onOpen={handleGenerateQuestions}>

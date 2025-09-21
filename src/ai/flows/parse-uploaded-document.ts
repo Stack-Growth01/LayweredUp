@@ -9,20 +9,13 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
+import { ClauseSchema } from '@/lib/schema';
 
 const ParseUploadedDocumentInputSchema = z.object({
   documentText: z.string().optional().describe('The full text content of the legal document to be parsed.'),
   documentDataUri: z.string().optional().describe("A document file (like a scanned PDF) as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 export type ParseUploadedDocumentInput = z.infer<typeof ParseUploadedDocumentInputSchema>;
-
-const ClauseSchema = z.object({
-    clauseId: z.string().describe('A unique identifier for the clause, e.g., "C1", "C2".'),
-    type: z.string().describe('The type of clause, e.g., "Termination", "Payment", "Confidentiality".'),
-    text: z.string().describe('The full body text of the clause.'),
-    riskFlag: z.enum(["standard", "unusual"]).describe('A flag indicating if the clause is standard or unusual.'),
-    explanation: z.string().describe('A brief explanation if the clause is flagged as unusual.'),
-  });
 
 const ParseUploadedDocumentOutputSchema = z.object({
   title: z.string().describe('The main title of the legal document.'),
