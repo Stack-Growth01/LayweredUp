@@ -10,7 +10,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Link from 'next/link';
 import type { SampleDocument } from '@/lib/data';
 import { useCallback } from 'react';
-import jsPDF from 'jspdf';
 
 type AppHeaderProps = {
   onNewUpload: () => void;
@@ -19,11 +18,12 @@ type AppHeaderProps = {
 
 export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
-  const handleDownload = useCallback(() => {
-    if (typeof window === 'undefined' || !document || typeof document.createElement !== 'function') {
+  const handleDownload = useCallback(async () => {
+    if (typeof window === 'undefined' || !document) {
         return;
     }
     
+    const { default: jsPDF } = await import('jspdf');
     const doc = new jsPDF();
     const margin = 15;
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -63,8 +63,10 @@ export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
     if (risks.length > 0) {
         addWrappedText('Risks Identified', { fontSize: 16, isTitle: true });
         risks.forEach((risk) => {
-            addWrappedText(`${risk.clauseTitle} (Risk: ${risk.risk})`, { fontSize: 12, isSubtitle: true });
-            addWrappedText(`Issue: ${risk.summary_eli15}`, { fontSize: 10 });
+            if (risk.clauseTitle && risk.risk && risk.summary_eli15) {
+                addWrappedText(`${risk.clauseTitle} (Risk: ${risk.risk})`, { fontSize: 12, isSubtitle: true });
+                addWrappedText(`Issue: ${risk.summary_eli15}`, { fontSize: 10 });
+            }
         });
     }
 
