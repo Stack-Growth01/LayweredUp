@@ -18,7 +18,10 @@ export type CheckMissingContractsInput = z.infer<typeof CheckMissingContractsInp
 const CheckMissingContractsOutputSchema = z.object({
   mainContract: z.string().describe("The type of the main contract analyzed."),
   recommendedAdditionalContracts: z.array(z.string()).describe("A list of other contracts that are typically associated with the main one."),
-  reasoning: z.record(z.string(), z.string()).describe("A dictionary where keys are the recommended contract names and values explain why they are needed."),
+  reasoning: z.array(z.object({
+    contract: z.string().describe('The name of the recommended contract.'),
+    reason: z.string().describe('The explanation for why this contract is needed.'),
+  })).describe("An array of objects, each explaining why a recommended contract is needed."),
 });
 export type CheckMissingContractsOutput = z.infer<typeof CheckMissingContractsOutputSchema>;
 
@@ -41,13 +44,13 @@ You are an AI legal assistant that specializes in identifying required supportin
    - A "Partnership Agreement" could be associated with a "Profit-sharing Agreement" or an "IP Assignment Agreement".
 3. Analyze the content of the main contract to see if it mentions or covers aspects of these related agreements.
 4. Return a list of recommended additional contracts that are not sufficiently covered or are missing.
-5. Provide a clear reason for why each recommended contract is necessary.
+5. Provide a clear reason for why each recommended contract is necessary in the reasoning array.
 
 [INPUT]
 Contract Content: "{{mainContractContent}}"
 
 [OUTPUT FORMAT] (JSON)
-Respond with a JSON object that matches the output schema, with keys for "mainContract", "recommendedAdditionalContracts", and "reasoning".
+Respond with a JSON object that matches the output schema.
 `,
 });
 
