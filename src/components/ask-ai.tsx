@@ -109,7 +109,7 @@ export default function AskAI({ document }: AskAIProps) {
     <Accordion type="single" collapsible className="w-full space-y-4">
        <FeatureContainer title="0. Parse Uploaded Document">
         <form onSubmit={(e) => handleFormSubmit(e, 'parse', () => parseUploadedDocument({ documentText: getFullDocumentText() }))}>
-            <p className="text-sm text-muted-foreground mb-4">Extract structured data from the document.</p>
+            <p className="text-sm text-muted-foreground mb-4">Extract structured data from the document. This is required for some features below.</p>
             <Button type="submit" disabled={isLoading === 'parse'}>
             {isLoading === 'parse' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Parse Document
@@ -147,30 +147,37 @@ export default function AskAI({ document }: AskAIProps) {
       </FeatureContainer>
       
       <FeatureContainer title="3. Personalize Analysis with Role Lens">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const role = formData.get('role') as 'tenant' | 'landlord' | 'freelancer' | 'smb';
-          runFlow('personalize', () => personalizeAnalysisWithRoleLens({ documentText: getFullDocumentText(), role }));
-        }}>
-            <Label htmlFor="role-select">Select Your Role</Label>
-            <Select name="role" defaultValue="tenant">
-                <SelectTrigger id="role-select" className="my-1">
-                    <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="tenant">Tenant</SelectItem>
-                    <SelectItem value="landlord">Landlord</SelectItem>
-                    <SelectItem value="freelancer">Freelancer</SelectItem>
-                    <SelectItem value="smb">SMB</SelectItem>
-                </SelectContent>
-            </Select>
-            <Button type="submit" className="mt-2" disabled={isLoading === 'personalize'}>
-                {isLoading === 'personalize' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Get Personalized Analysis
-            </Button>
-            {results.personalize && <ResultDisplay result={results.personalize} />}
-        </form>
+        {results.parse ? (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const role = formData.get('role') as string;
+              if (!role) {
+                toast({ title: "Please select a role", variant: "destructive" });
+                return;
+              }
+              runFlow('personalize', () => personalizeAnalysisWithRoleLens({ documentText: getFullDocumentText(), role }));
+            }}>
+                <Label htmlFor="role-select">Select Your Role</Label>
+                <Select name="role">
+                    <SelectTrigger id="role-select" className="my-1">
+                        <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {(results.parse.parties as string[] || []).map(party => (
+                            <SelectItem key={party} value={party}>{party}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Button type="submit" className="mt-2" disabled={isLoading === 'personalize'}>
+                    {isLoading === 'personalize' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Get Personalized Analysis
+                </Button>
+                {results.personalize && <ResultDisplay result={results.personalize} />}
+            </form>
+        ) : (
+            <p className="text-sm text-muted-foreground">Please run "Parse Uploaded Document" first to identify roles in the contract.</p>
+        )}
       </FeatureContainer>
 
       <FeatureContainer title="4. Identify Risks &amp; Suggest Counter-Proposals">

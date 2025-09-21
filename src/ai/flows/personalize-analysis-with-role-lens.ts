@@ -14,8 +14,8 @@ import {z} from 'genkit';
 const PersonalizeAnalysisWithRoleLensInputSchema = z.object({
   documentText: z.string().describe('The text content of the legal document.'),
   role: z
-    .enum(['tenant', 'landlord', 'freelancer', 'smb'])
-    .describe('The role of the user (tenant, landlord, freelancer, or SMB).'),
+    .string()
+    .describe('The role of the user (e.g., Tenant, Landlord, Employer).'),
 });
 export type PersonalizeAnalysisWithRoleLensInput = z.infer<
   typeof PersonalizeAnalysisWithRoleLensInputSchema
