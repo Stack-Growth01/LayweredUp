@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import Link from 'next/link';
 import type { SampleDocument } from '@/lib/data';
+import { useCallback } from 'react';
 
 type AppHeaderProps = {
   onNewUpload: () => void;
@@ -17,7 +18,7 @@ type AppHeaderProps = {
 
 export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     if (typeof window !== 'undefined' && document) {
       const risks = document.clauses.filter(
         (c) => c.risk && c.risk !== 'standard'
@@ -42,10 +43,12 @@ export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
       if (counterProposals.length > 0) {
         reportContent += '## Appendix: Suggested Counter-Proposals\n\n';
         counterProposals.forEach((clause) => {
-          reportContent += `### For clause "${clause.clauseTitle}":\n\n`;
-          reportContent += '```\n';
-          reportContent += `${clause.counterProposal}\n`;
-          reportContent += '```\n\n';
+          if (clause.counterProposal && clause.clauseTitle) {
+            reportContent += `### For clause "${clause.clauseTitle}":\n\n`;
+            reportContent += '```\n';
+            reportContent += `${clause.counterProposal}\n`;
+            reportContent += '```\n\n';
+          }
         });
       }
 
@@ -61,7 +64,7 @@ export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
-  };
+  }, [document]);
 
 
   return (
