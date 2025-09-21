@@ -20,6 +20,8 @@ import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
 import type { SampleDocument } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import * as pdfjs from 'pdfjs-dist';
+import mammoth from 'mammoth';
 
 
 type DocumentUploaderProps = {
@@ -34,48 +36,26 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleFileAnalysis = async (file: File) => {
-    if (!file) {
-      toast({
-        title: "No file selected",
-        description: "Please drop or select a file to analyze.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.type !== 'text/plain') {
-      toast({
-        title: "Unsupported File Type",
-        description: "For now, this feature only supports plain .txt files.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const text = e.target?.result as string;
-      if (!text) {
-        toast({ title: "File is empty", description: "The selected file has no content.", variant: "destructive" });
-        setIsLoading(false);
+  const processTextForAnalysis = async (text: string, title: string) => {
+    if (!text.trim()) {
+        toast({ title: "Document is empty", description: "The provided document has no text content.", variant: "destructive" });
         return;
-      }
-
-      try {
+    }
+    
+    setIsLoading(true);
+    try {
         const analysisResult = await parseUploadedDocument({ documentText: text });
         
         const newDocument: SampleDocument = {
-            title: analysisResult.title || "Uploaded Document",
+            title: analysisResult.title || title,
             summary: "AI analysis of your uploaded document.",
             clauses: analysisResult.clauses.map(c => ({
-              id: c.clauseId,
-              clauseTitle: c.type,
-              text: c.text,
-              risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
-              summary_eli5: c.explanation || "This is a standard clause.",
-              summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
+                id: c.clauseId,
+                clauseTitle: c.type,
+                text: c.text,
+                risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
+                summary_eli5: c.explanation || "This is a standard clause.",
+                summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
             })),
         };
 
@@ -85,66 +65,63 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
         
         router.push('/analysis');
 
-      } catch (error) {
-        console.error("Failed to analyze file:", error);
+    } catch (error) {
+        console.error("Failed to analyze text:", error);
         toast({
           title: "Analysis Failed",
-          description: "Something went wrong while analyzing the file. Please try again.",
+          description: "Something went wrong while analyzing the document. Please try again.",
           variant: "destructive",
         });
-      } finally {
+    } finally {
         setIsLoading(false);
-      }
-    };
-    reader.onerror = () => {
-      toast({ title: "Failed to read file", variant: "destructive" });
-      setIsLoading(false);
-    };
-    reader.readAsText(file);
+    }
+  };
+
+  const handleFileAnalysis = async (file: File) => {
+    if (!file) {
+      toast({ title: "No file selected", description: "Please drop or select a file to analyze.", variant: "destructive" });
+      return;
+    }
+
+    const validTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.includes(file.type)) {
+      toast({ title: "Unsupported File Type", description: "Please upload a .txt, .pdf, or .docx file.", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    let text = '';
+    
+    try {
+        if (file.type === 'text/plain') {
+            text = await file.text();
+        } else if (file.type === 'application/pdf') {
+            pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`;
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjs.getDocument(arrayBuffer).promise;
+            const numPages = pdf.numPages;
+            for (let i = 1; i <= numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                text += textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
+            }
+        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            text = result.value;
+        }
+
+        await processTextForAnalysis(text, file.name);
+
+    } catch(error) {
+        console.error("Error processing file:", error);
+        toast({ title: "Failed to process file", description: "There was an error reading the file content.", variant: "destructive" });
+        setIsLoading(false);
+    }
   };
 
   const handleDemystifyText = async () => {
-    if (!pastedText.trim()) {
-      toast({
-        title: "No text provided",
-        description: "Please paste some text to analyze.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const analysisResult = await parseUploadedDocument({ documentText: pastedText });
-      
-       const newDocument: SampleDocument = {
-          title: analysisResult.title || "Pasted Document",
-          summary: "AI analysis of your pasted text.",
-          clauses: analysisResult.clauses.map(c => ({
-            id: c.clauseId,
-            clauseTitle: c.type,
-            text: c.text,
-            risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
-            summary_eli5: c.explanation || "This is a standard clause.",
-            summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
-          })),
-      };
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
-      }
-      
-      router.push('/analysis');
-
-    } catch (error) {
-      console.error("Failed to demystify text:", error);
-      toast({
-        title: "Analysis Failed",
-        description: "Something went wrong while analyzing the text. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await processTextForAnalysis(pastedText, 'Pasted Document');
   };
   
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -224,39 +201,25 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
               </TabsTrigger>
             </TabsList>
             <TabsContent value="upload">
-                <div className="flex flex-col gap-4">
-                    <div 
-                      className={cn(
-                        "border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors",
-                        isDragging && "border-primary bg-primary/10"
-                      )}
-                      onDragEnter={handleDragEnter}
-                      onDragLeave={handleDragLeave}
-                      onDragOver={handleDragOver}
-                      onDrop={handleDrop}
-                      onClick={() => document.getElementById('file-upload-input')?.click()}
-                    >
-                        <input id="file-upload-input" type="file" className="hidden" accept=".txt" onChange={handleFileSelect} />
-                        <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
-                        <p className="font-semibold text-foreground">
-                        Drag & drop files here or click to browse
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                        Supports .TXT files
-                        </p>
-                    </div>
-                    <Button
-                        onClick={() => document.getElementById('file-upload-input')?.click()}
-                        disabled={isLoading}
-                        className="w-full"
-                    >
-                        {isLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                        <Bot className="mr-2 h-4 w-4" />
-                        )}
-                        Demystify File
-                    </Button>
+                <div 
+                  className={cn(
+                    "border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors",
+                    isDragging && "border-primary bg-primary/10"
+                  )}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('file-upload-input')?.click()}
+                >
+                    <input id="file-upload-input" type="file" className="hidden" accept=".txt,.pdf,.docx" onChange={handleFileSelect} />
+                    <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
+                    <p className="font-semibold text-foreground">
+                    Drag & drop files here or click to browse
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                    Supports .TXT, .PDF, and .DOCX files
+                    </p>
                 </div>
             </TabsContent>
             <TabsContent value="paste">
