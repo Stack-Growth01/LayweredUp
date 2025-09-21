@@ -20,7 +20,7 @@ const ProcessBatchContractsInputSchema = z.object({
     .array(ContractInputSchema)
     .describe('An array of contract objects to be processed.'),
 });
-export type ProcessBatchContractsInput = z.infer<
+type ProcessBatchContractsInput = z.infer<
   typeof ProcessBatchContractsInputSchema
 >;
 
@@ -49,7 +49,7 @@ const ProcessBatchContractsOutputSchema = z.object({
       'A list of document IDs for the contracts identified as having the highest overall risk.'
     ),
 });
-export type ProcessBatchContractsOutput = z.infer<
+type ProcessBatchContractsOutput = z.infer<
   typeof ProcessBatchContractsOutputSchema
 >;
 

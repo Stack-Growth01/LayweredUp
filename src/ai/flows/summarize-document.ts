@@ -14,7 +14,7 @@ import {z} from 'genkit';
 const SummarizeDocumentInputSchema = z.object({
   documentText: z.string().describe('The text content of the legal document.'),
 });
-export type SummarizeDocumentInput = z.infer<typeof SummarizeDocumentInputSchema>;
+type SummarizeDocumentInput = z.infer<typeof SummarizeDocumentInputSchema>;
 
 const SummarizeDocumentOutputSchema = z.object({
   overview: z.string().describe("A one-page summary of the contract's obligations, payments, rights, and risks at a Grade 10 reading level."),
@@ -24,7 +24,7 @@ const SummarizeDocumentOutputSchema = z.object({
   })).describe("An array of 3-5 key risks with plain explanations."),
   recommendedActions: z.array(z.string()).describe("A list of recommended next steps, such as negotiations or adding clauses."),
 });
-export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
+type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
 export async function summarizeDocument(input: SummarizeDocumentInput): Promise<SummarizeDocumentOutput> {
   return summarizeDocumentFlow(input);

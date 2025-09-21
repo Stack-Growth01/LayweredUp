@@ -15,7 +15,7 @@ const ParseUploadedDocumentInputSchema = z.object({
   documentText: z.string().optional().describe('The full text content of the legal document to be parsed.'),
   documentDataUri: z.string().optional().describe("A document file (like a scanned PDF) as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
-export type ParseUploadedDocumentInput = z.infer<typeof ParseUploadedDocumentInputSchema>;
+type ParseUploadedDocumentInput = z.infer<typeof ParseUploadedDocumentInputSchema>;
 
 const ParseUploadedDocumentOutputSchema = z.object({
   title: z.string().describe('The main title of the legal document.'),
@@ -30,7 +30,7 @@ const ParseUploadedDocumentOutputSchema = z.object({
   summary: z.string().describe("A one-paragraph summary of the document's key points, risks, and purpose."),
   structuralIssues: z.array(z.string()).describe('A list of any detected structural issues, like missing signatures or undefined terms.'),
 });
-export type ParseUploadedDocumentOutput = z.infer<typeof ParseUploadedDocumentOutputSchema>;
+type ParseUploadedDocumentOutput = z.infer<typeof ParseUploadedDocumentOutputSchema>;
 
 export async function parseUploadedDocument(input: ParseUploadedDocumentInput): Promise<ParseUploadedDocumentOutput> {
   return parseUploadedDocumentFlow(input);

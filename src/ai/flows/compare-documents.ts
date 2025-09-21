@@ -14,7 +14,7 @@ const CompareDocumentsInputSchema = z.object({
   docText1: z.string().describe('The text content of the old version of the contract.'),
   docText2: z.string().describe('The text content of the new version of the contract.'),
 });
-export type CompareDocumentsInput = z.infer<typeof CompareDocumentsInputSchema>;
+type CompareDocumentsInput = z.infer<typeof CompareDocumentsInputSchema>;
 
 const CompareDocumentsOutputSchema = z.array(
   z.object({
@@ -24,7 +24,7 @@ const CompareDocumentsOutputSchema = z.array(
     changeImpact: z.string().describe('A plain-language explanation of the change and its potential impact.'),
   })
 );
-export type CompareDocumentsOutput = z.infer<typeof CompareDocumentsOutputSchema>;
+type CompareDocumentsOutput = z.infer<typeof CompareDocumentsOutputSchema>;
 
 export async function compareDocuments(input: CompareDocumentsInput): Promise<CompareDocumentsOutput> {
   return compareDocumentsFlow(input);

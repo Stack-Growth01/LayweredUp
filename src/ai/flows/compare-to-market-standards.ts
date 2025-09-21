@@ -13,7 +13,7 @@ import {z} from 'zod';
 const CompareToMarketStandardsInputSchema = z.object({
   documentText: z.string().describe('The full text content of the legal document.'),
 });
-export type CompareToMarketStandardsInput = z.infer<typeof CompareToMarketStandardsInputSchema>;
+type CompareToMarketStandardsInput = z.infer<typeof CompareToMarketStandardsInputSchema>;
 
 const CompareToMarketStandardsOutputSchema = z.array(
   z.object({
@@ -24,7 +24,7 @@ const CompareToMarketStandardsOutputSchema = z.array(
     comment: z.string().describe('A comment on how the contract\'s clause deviates from the standard and the potential impact.'),
   })
 );
-export type CompareToMarketStandardsOutput = z.infer<typeof CompareToMarketStandardsOutputSchema>;
+type CompareToMarketStandardsOutput = z.infer<typeof CompareToMarketStandardsOutputSchema>;
 
 export async function compareToMarketStandards(input: CompareToMarketStandardsInput): Promise<CompareToMarketStandardsOutput> {
   return compareToMarketStandardsFlow(input);

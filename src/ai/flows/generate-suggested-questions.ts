@@ -13,12 +13,12 @@ import {z} from 'zod';
 const GenerateSuggestedQuestionsInputSchema = z.object({
   documentText: z.string().describe('The full text of the legal document.'),
 });
-export type GenerateSuggestedQuestionsInput = z.infer<typeof GenerateSuggestedQuestionsInputSchema>;
+type GenerateSuggestedQuestionsInput = z.infer<typeof GenerateSuggestedQuestionsInputSchema>;
 
 const GenerateSuggestedQuestionsOutputSchema = z.object({
   questions: z.array(z.string()).describe("An array of 3-4 suggested questions about the document."),
 });
-export type GenerateSuggestedQuestionsOutput = z.infer<typeof GenerateSuggestedQuestionsOutputSchema>;
+type GenerateSuggestedQuestionsOutput = z.infer<typeof GenerateSuggestedQuestionsOutputSchema>;
 
 export async function generateSuggestedQuestions(input: GenerateSuggestedQuestionsInput): Promise<GenerateSuggestedQuestionsOutput> {
   return generateSuggestedQuestionsFlow(input);

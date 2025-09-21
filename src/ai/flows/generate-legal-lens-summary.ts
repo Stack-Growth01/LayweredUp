@@ -13,14 +13,14 @@ import {z} from 'zod';
 const GenerateLegalLensSummaryInputSchema = z.object({
   documentText: z.string().describe('The text content of the legal document.'),
 });
-export type GenerateLegalLensSummaryInput = z.infer<typeof GenerateLegalLensSummaryInputSchema>;
+type GenerateLegalLensSummaryInput = z.infer<typeof GenerateLegalLensSummaryInputSchema>;
 
 const GenerateLegalLensSummaryOutputSchema = z.object({
   professional: z.string().describe('A summary for a professional lawyer, using precise legal terminology and focusing on enforceability and compliance.'),
   layman: z.string().describe("A simplified summary in plain English, explaining obligations for a non-lawyer."),
   riskSummary: z.string().describe('A summary that highlights risks and potential financial or operational consequences.'),
 });
-export type GenerateLegalLensSummaryOutput = z.infer<typeof GenerateLegalLensSummaryOutputSchema>;
+type GenerateLegalLensSummaryOutput = z.infer<typeof GenerateLegalLensSummaryOutputSchema>;
 
 export async function generateLegalLensSummary(input: GenerateLegalLensSummaryInput): Promise<GenerateLegalLensSummaryOutput> {
   return generateLegalLensSummaryFlow(input);

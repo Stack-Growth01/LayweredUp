@@ -14,7 +14,7 @@ const TranslateLegalTextInputSchema = z.object({
   text_to_translate: z.string().describe('The legal text to be translated.'),
   target_language: z.string().describe('The language to translate the text into, e.g., "Hindi".'),
 });
-export type TranslateLegalTextInput = z.infer<typeof TranslateLegalTextInputSchema>;
+type TranslateLegalTextInput = z.infer<typeof TranslateLegalTextInputSchema>;
 
 const TranslateLegalTextOutputSchema = z.object({
   original_text: z.string().describe("The original text that was provided for translation."),
@@ -22,7 +22,7 @@ const TranslateLegalTextOutputSchema = z.object({
   back_translation: z.string().describe("The English back-translation of the translated text to verify accuracy."),
   accuracy_notes: z.string().describe("Notes on the precision and legal accuracy of the translation."),
 });
-export type TranslateLegalTextOutput = z.infer<typeof TranslateLegalTextOutputSchema>;
+type TranslateLegalTextOutput = z.infer<typeof TranslateLegalTextOutputSchema>;
 
 export async function translateLegalText(input: TranslateLegalTextInput): Promise<TranslateLegalTextOutput> {
   return translateLegalTextFlow(input);

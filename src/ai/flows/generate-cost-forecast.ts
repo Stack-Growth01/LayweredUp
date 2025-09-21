@@ -16,7 +16,7 @@ const GenerateCostForecastInputSchema = z.object({
   complexity: z.string().describe('The complexity of the case, e.g., "Contested with child custody claim".'),
   lawyerType: z.string().describe('The tier of lawyer hired, e.g., "mid-tier".'),
 });
-export type GenerateCostForecastInput = z.infer<typeof GenerateCostForecastInputSchema>;
+type GenerateCostForecastInput = z.infer<typeof GenerateCostForecastInputSchema>;
 
 const GenerateCostForecastOutputSchema = z.object({
   estimated_expenses: z.string().describe('The total estimated expense range.'),
@@ -42,7 +42,7 @@ const GenerateCostForecastOutputSchema = z.object({
   confidence_level: z.string().describe('The confidence level of the estimate (e.g., "High", "Medium", "Low").'),
   data_sources: z.array(z.string()).describe('The data sources used for the estimates.'),
 });
-export type GenerateCostForecastOutput = z.infer<typeof GenerateCostForecastOutputSchema>;
+type GenerateCostForecastOutput = z.infer<typeof GenerateCostForecastOutputSchema>;
 
 export async function generateCostForecast(input: GenerateCostForecastInput): Promise<GenerateCostForecastOutput> {
   return generateCostForecastFlow(input);

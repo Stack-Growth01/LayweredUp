@@ -15,7 +15,7 @@ const PersonalizeLegalAdviceInputSchema = z.object({
   profession: z.string().describe("The user's profession or business type, e.g., 'small business owner'."),
   profileSummary: z.string().describe("A summary of the user's activities and history, e.g., 'signs frequent vendor contracts, previously had a delayed payment dispute with a supplier.'"),
 });
-export type PersonalizeLegalAdviceInput = z.infer<typeof PersonalizeLegalAdviceInputSchema>;
+type PersonalizeLegalAdviceInput = z.infer<typeof PersonalizeLegalAdviceInputSchema>;
 
 const PersonalizeLegalAdviceOutputSchema = z.object({
   personalized_insights: z.array(z.string()).describe("Common risks or insights relevant to the user's field and history."),
@@ -23,7 +23,7 @@ const PersonalizeLegalAdviceOutputSchema = z.object({
   red_flags: z.array(z.string()).describe("Contractual red flags to watch out for, tailored to the user profile."),
   proactive_strategies: z.array(z.string()).describe("Proactive legal strategies like insurance, contract modifications, etc."),
 });
-export type PersonalizeLegalAdviceOutput = z.infer<typeof PersonalizeLegalAdviceOutputSchema>;
+type PersonalizeLegalAdviceOutput = z.infer<typeof PersonalizeLegalAdviceOutputSchema>;
 
 export async function personalizeLegalAdvice(input: PersonalizeLegalAdviceInput): Promise<PersonalizeLegalAdviceOutput> {
   return personalizeLegalAdviceFlow(input);

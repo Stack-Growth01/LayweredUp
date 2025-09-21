@@ -17,7 +17,7 @@ const PredictOutcomeInputSchema = z.object({
   evidenceStrength: z.string().describe('Summary of the strength of evidence for the user.'),
   pastJudgments: z.string().describe('Notes on relevant past judgments or precedents.'),
 });
-export type PredictOutcomeInput = z.infer<typeof PredictOutcomeInputSchema>;
+type PredictOutcomeInput = z.infer<typeof PredictOutcomeInputSchema>;
 
 const PredictOutcomeOutputSchema = z.object({
   predicted_outcomes: z.array(z.string()).describe('A list of probable outcomes, e.g., "Win", "Lose", "Settlement".'),
@@ -25,7 +25,7 @@ const PredictOutcomeOutputSchema = z.object({
   reasoning: z.array(z.string()).describe('The reasoning behind the prediction, citing relevant factors.'),
   recommended_action: z.string().describe('The suggested next best step for the user.'),
 });
-export type PredictOutcomeOutput = z.infer<typeof PredictOutcomeOutputSchema>;
+type PredictOutcomeOutput = z.infer<typeof PredictOutcomeOutputSchema>;
 
 export async function predictOutcome(input: PredictOutcomeInput): Promise<PredictOutcomeOutput> {
   return predictOutcomeFlow(input);

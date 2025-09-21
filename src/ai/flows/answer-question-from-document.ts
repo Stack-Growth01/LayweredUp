@@ -14,14 +14,14 @@ const AnswerQuestionFromDocumentInputSchema = z.object({
   user_question: z.string().describe("The user's question about the contract."),
   contract_text: z.string().describe('The full text of the contract.'),
 });
-export type AnswerQuestionFromDocumentInput = z.infer<typeof AnswerQuestionFromDocumentInputSchema>;
+type AnswerQuestionFromDocumentInput = z.infer<typeof AnswerQuestionFromDocumentInputSchema>;
 
 const AnswerQuestionFromDocumentOutputSchema = z.object({
   user_question: z.string().describe("The original user question."),
   answer: z.string().describe("The answer to the user's question, based only on the contract text."),
   sourceClauseText: z.string().describe("The specific clause from the contract that supports the answer. If not found, this will be an empty string."),
 });
-export type AnswerQuestionFromDocumentOutput = z.infer<typeof AnswerQuestionFromDocumentOutputSchema>;
+type AnswerQuestionFromDocumentOutput = z.infer<typeof AnswerQuestionFromDocumentOutputSchema>;
 
 export async function answerQuestionFromDocument(input: AnswerQuestionFromDocumentInput): Promise<AnswerQuestionFromDocumentOutput> {
   return answerQuestionFromDocumentFlow(input);

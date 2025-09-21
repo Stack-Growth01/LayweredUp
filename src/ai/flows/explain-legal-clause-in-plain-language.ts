@@ -15,7 +15,7 @@ const ExplainLegalClauseInputSchema = z.object({
     .string()
     .describe('The legal clause to explain.'),
 });
-export type ExplainLegalClauseInput = z.infer<typeof ExplainLegalClauseInputSchema>;
+type ExplainLegalClauseInput = z.infer<typeof ExplainLegalClauseInputSchema>;
 
 const ExplainLegalClauseOutputSchema = z.object({
   original_clause: z.string().describe("The original clause text."),
@@ -23,7 +23,7 @@ const ExplainLegalClauseOutputSchema = z.object({
   detailed_explanation: z.string().describe("A more detailed, but still jargon-free, explanation of the clause."),
   disclaimer: z.string().describe("A standard disclaimer that this is not legal advice."),
 });
-export type ExplainLegalClauseOutput = z.infer<typeof ExplainLegalClauseOutputSchema>;
+type ExplainLegalClauseOutput = z.infer<typeof ExplainLegalClauseOutputSchema>;
 
 export async function explainLegalClause(input: ExplainLegalClauseInput): Promise<ExplainLegalClauseOutput> {
   return explainLegalClauseFlow(input);

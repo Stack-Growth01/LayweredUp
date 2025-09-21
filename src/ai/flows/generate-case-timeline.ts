@@ -16,7 +16,7 @@ const GenerateCaseTimelineInputSchema = z.object({
   jurisdiction: z.string().describe('The jurisdiction where the case is filed, e.g., "Bangalore District Court".'),
   lastKnownStatus: z.string().describe('The last known status or event in the case, e.g., "Last hearing was July 2025".'),
 });
-export type GenerateCaseTimelineInput = z.infer<typeof GenerateCaseTimelineInputSchema>;
+type GenerateCaseTimelineInput = z.infer<typeof GenerateCaseTimelineInputSchema>;
 
 const GenerateCaseTimelineOutputSchema = z.object({
   current_stage: z.string().describe('The current stage of the case lifecycle.'),
@@ -39,7 +39,7 @@ const GenerateCaseTimelineOutputSchema = z.object({
     longest_case: z.string().describe('The longest recorded resolution for a similar case.'),
   }).describe('Data on the speed of historical precedents for similar cases.'),
 });
-export type GenerateCaseTimelineOutput = z.infer<typeof GenerateCaseTimelineOutputSchema>;
+type GenerateCaseTimelineOutput = z.infer<typeof GenerateCaseTimelineOutputSchema>;
 
 export async function generateCaseTimeline(input: GenerateCaseTimelineInput): Promise<GenerateCaseTimelineOutput> {
   return generateCaseTimelineFlow(input);

@@ -13,7 +13,7 @@ import {z} from 'zod';
 const FlagUncertainClausesInputSchema = z.object({
   documentText: z.string().describe('The full text content of the legal document.'),
 });
-export type FlagUncertainClausesInput = z.infer<typeof FlagUncertainClausesInputSchema>;
+type FlagUncertainClausesInput = z.infer<typeof FlagUncertainClausesInputSchema>;
 
 const FlagUncertainClausesOutputSchema = z.array(
   z.object({
@@ -22,7 +22,7 @@ const FlagUncertainClausesOutputSchema = z.array(
     warning: z.string().describe('A warning message if the confidence score is low, advising legal consultation.'),
   })
 );
-export type FlagUncertainClausesOutput = z.infer<typeof FlagUncertainClausesOutputSchema>;
+type FlagUncertainClausesOutput = z.infer<typeof FlagUncertainClausesOutputSchema>;
 
 export async function flagUncertainClauses(input: FlagUncertainClausesInput): Promise<FlagUncertainClausesOutput> {
   return flagUncertainClausesFlow(input);

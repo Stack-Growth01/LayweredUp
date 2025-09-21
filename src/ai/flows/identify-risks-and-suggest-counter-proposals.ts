@@ -16,7 +16,7 @@ import { ClauseSchema } from '@/lib/schema';
 const IdentifyRisksAndSuggestCounterProposalsInputSchema = z.object({
   clauses: z.array(ClauseSchema).describe("An array of clauses from the legal document, already parsed."),
 });
-export type IdentifyRisksAndSuggestCounterProposalsInput = z.infer<
+type IdentifyRisksAndSuggestCounterProposalsInput = z.infer<
   typeof IdentifyRisksAndSuggestCounterProposalsInputSchema
 >;
 
@@ -30,7 +30,7 @@ const RiskObjectSchema = z.object({
 
 const IdentifyRisksAndSuggestCounterProposalsOutputSchema = z.array(RiskObjectSchema);
 
-export type IdentifyRisksAndSuggestCounterProposalsOutput = z.infer<
+type IdentifyRisksAndSuggestCounterProposalsOutput = z.infer<
   typeof IdentifyRisksAndSuggestCounterProposalsOutputSchema
 >;
 

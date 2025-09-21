@@ -13,7 +13,7 @@ import {z} from 'zod';
 const TrackComplianceInputSchema = z.object({
   documentText: z.string().describe('The full text content of the legal document.'),
 });
-export type TrackComplianceInput = z.infer<typeof TrackComplianceInputSchema>;
+type TrackComplianceInput = z.infer<typeof TrackComplianceInputSchema>;
 
 const TrackComplianceOutputSchema = z.array(
     z.object({
@@ -23,7 +23,7 @@ const TrackComplianceOutputSchema = z.array(
         frequency: z.enum(["one-time", "monthly", "yearly", "recurring"]).describe('The frequency of the obligation.'),
     })
 );
-export type TrackComplianceOutput = z.infer<typeof TrackComplianceOutputSchema>;
+type TrackComplianceOutput = z.infer<typeof TrackComplianceOutputSchema>;
 
 export async function trackCompliance(input: TrackComplianceInput): Promise<TrackComplianceOutput> {
   return trackComplianceFlow(input);

@@ -17,7 +17,7 @@ const PersonalizeAnalysisWithRoleLensInputSchema = z.object({
     .string()
     .describe('The role of the user (e.g., Tenant, Landlord, Employer).'),
 });
-export type PersonalizeAnalysisWithRoleLensInput = z.infer<
+type PersonalizeAnalysisWithRoleLensInput = z.infer<
   typeof PersonalizeAnalysisWithRoleLensInputSchema
 >;
 
@@ -26,7 +26,7 @@ const PersonalizeAnalysisWithRoleLensOutputSchema = z.object({
     .string()
     .describe('The personalized analysis of the legal document based on the selected role.'),
 });
-export type PersonalizeAnalysisWithRoleLensOutput = z.infer<
+type PersonalizeAnalysisWithRoleLensOutput = z.infer<
   typeof PersonalizeAnalysisWithRoleLensOutputSchema
 >;
 

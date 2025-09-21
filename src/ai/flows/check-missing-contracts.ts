@@ -13,7 +13,7 @@ import {z} from 'zod';
 const CheckMissingContractsInputSchema = z.object({
   mainContractContent: z.string().describe('The full text content of the main contract.'),
 });
-export type CheckMissingContractsInput = z.infer<typeof CheckMissingContractsInputSchema>;
+type CheckMissingContractsInput = z.infer<typeof CheckMissingContractsInputSchema>;
 
 const CheckMissingContractsOutputSchema = z.object({
   mainContract: z.string().describe("The type of the main contract analyzed."),
@@ -23,7 +23,7 @@ const CheckMissingContractsOutputSchema = z.object({
     reason: z.string().describe('The explanation for why this contract is needed.'),
   })).describe("An array of objects, each explaining why a recommended contract is needed."),
 });
-export type CheckMissingContractsOutput = z.infer<typeof CheckMissingContractsOutputSchema>;
+type CheckMissingContractsOutput = z.infer<typeof CheckMissingContractsOutputSchema>;
 
 export async function checkMissingContracts(input: CheckMissingContractsInput): Promise<CheckMissingContractsOutput> {
   return checkMissingContractsFlow(input);

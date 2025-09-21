@@ -13,7 +13,7 @@ import {z} from 'zod';
 const PredictRiskInputSchema = z.object({
   documentText: z.string().describe('The full text content of the legal document to be analyzed.'),
 });
-export type PredictRiskInput = z.infer<typeof PredictRiskInputSchema>;
+type PredictRiskInput = z.infer<typeof PredictRiskInputSchema>;
 
 const RiskSchema = z.object({
     clauseId: z.string().describe('An identifier for the clause being analyzed (e.g., "C5").'),
@@ -27,7 +27,7 @@ const RiskSchema = z.object({
 const PredictRiskOutputSchema = z.object({
     risks: z.array(RiskSchema).describe("An array of identified risks in the document."),
 });
-export type PredictRiskOutput = z.infer<typeof PredictRiskOutputSchema>;
+type PredictRiskOutput = z.infer<typeof PredictRiskOutputSchema>;
 
 export async function predictRisk(input: PredictRiskInput): Promise<PredictRiskOutput> {
   return predictRiskFlow(input);
