@@ -8,18 +8,19 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import Link from 'next/link';
+import type { SampleDocument } from '@/lib/data';
 
 type AppHeaderProps = {
   onNewUpload: () => void;
-  document: any;
+  document: SampleDocument;
 };
 
 export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
   const handleDownload = () => {
     if (typeof window !== 'undefined') {
-      const risks = document.clauses.filter((c: any) => c.risk && c.risk !== 'standard');
-      const counterProposals = risks.filter((r: any) => r.counterProposal);
+      const risks = document.clauses.filter((c) => c.risk && c.risk !== 'standard');
+      const counterProposals = risks.filter((r) => r.counterProposal);
 
       let reportContent = `# Summary of ${document.title}\n\n`;
       reportContent += `**Overall Summary:**\n${document.summary}\n\n`;
@@ -27,7 +28,7 @@ export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
       if (risks.length > 0) {
         reportContent += "## Risks Identified\n\n";
-        risks.forEach((risk: any) => {
+        risks.forEach((risk) => {
           reportContent += `### ${risk.clauseTitle} (Risk: ${risk.risk})\n`;
           reportContent += `**Issue:** ${risk.summary_eli15}\n\n`;
         });
@@ -36,7 +37,7 @@ export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
       if (counterProposals.length > 0) {
         reportContent += "## Appendix: Suggested Counter-Proposals\n\n";
-        counterProposals.forEach((risk: any) => {
+        counterProposals.forEach((risk) => {
           reportContent += `### For clause "${risk.clauseTitle}":\n\n`;
           reportContent += "```\n";
           reportContent += `${risk.counterProposal}\n`;
