@@ -55,7 +55,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
             id: c.clauseId,
             clauseTitle: c.type,
             text: c.text,
-            risk: riskInfo && riskInfo.isRisky ? (riskInfo.riskLevel === 'HIGH' ? 'risky' : 'negotiable') : 'standard',
+            risk: riskInfo && riskInfo.isRisky ? (riskInfo.riskLevel.toLowerCase() === 'high' ? 'risky' : 'negotiable') : 'standard',
             summary_eli5: riskInfo ? riskInfo.issue : (c.explanation || "This is a standard clause."),
             summary_eli15: riskInfo ? riskInfo.issue : (c.explanation || "This clause follows typical patterns and does not contain unusual language."),
             counterProposal: riskInfo ? riskInfo.suggestedChange : undefined,
@@ -631,3 +631,5 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     </div>
   );
 }
+
+    
