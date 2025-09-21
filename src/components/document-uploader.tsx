@@ -407,7 +407,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                                 </li>
                                 <li className="flex items-center space-x-2 p-2 rounded-lg hover:bg-background/50">
                                     <FileText className="w-4 h-4 text-muted-foreground" />
-                                    <span className="text-sm">Service Agreement</span>
+                                    <span className="text-sm">Past Lease 2022.pdf</span>
                                 </li>
                             </ul>
                         </div>
