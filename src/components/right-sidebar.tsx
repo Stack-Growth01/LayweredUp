@@ -26,6 +26,7 @@ type RightSidebarProps = {
 
 export default function RightSidebar({ document, isCollapsed, onToggleCollapse }: RightSidebarProps) {
     const risks = document.clauses.filter(c => c.risk && c.risk !== 'standard');
+    const counterProposals = document.clauses.filter(c => c.counterProposal);
     
     return (
         <aside className={cn(
@@ -91,6 +92,9 @@ export default function RightSidebar({ document, isCollapsed, onToggleCollapse }
                                         </PopoverContent>
                                     </Popover>
                                 ))}
+                                {risks.length === 0 && (
+                                    <p className="text-sm text-muted-foreground">No significant risks were identified in this document.</p>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -103,7 +107,7 @@ export default function RightSidebar({ document, isCollapsed, onToggleCollapse }
                                 <CardDescription>Editable text you can copy and paste.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {risks.filter(r => r.counterProposal).map(risk => (
+                                {counterProposals.map(risk => (
                                     <div key={`counter-${risk.id}`}>
                                         <Label className="font-semibold text-sm">{risk.clauseTitle}</Label>
                                         <div className="relative mt-1">
@@ -114,6 +118,9 @@ export default function RightSidebar({ document, isCollapsed, onToggleCollapse }
                                         </div>
                                     </div>
                                 ))}
+                                {counterProposals.length === 0 && (
+                                     <p className="text-sm text-muted-foreground">No counter-proposals were suggested for this document.</p>
+                                )}
                             </CardContent>
                         </Card>
                         
