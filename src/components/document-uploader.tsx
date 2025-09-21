@@ -36,45 +36,25 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
   const router = useRouter();
   const { toast } = useToast();
 
-  const processTextForAnalysis = async (text: string, title: string) => {
-    if (!text.trim()) {
-        toast({ title: "Document is empty", description: "The provided document has no text content.", variant: "destructive" });
-        return;
+  const processAndNavigate = async (result: any, title: string) => {
+    const newDocument: SampleDocument = {
+        title: result.title || title,
+        summary: "AI analysis of your uploaded document.",
+        clauses: result.clauses.map((c: any) => ({
+            id: c.clauseId,
+            clauseTitle: c.type,
+            text: c.text,
+            risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
+            summary_eli5: c.explanation || "This is a standard clause.",
+            summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
+        })),
+    };
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
     }
     
-    setIsLoading(true);
-    try {
-        const analysisResult = await parseUploadedDocument({ documentText: text });
-        
-        const newDocument: SampleDocument = {
-            title: analysisResult.title || title,
-            summary: "AI analysis of your uploaded document.",
-            clauses: analysisResult.clauses.map(c => ({
-                id: c.clauseId,
-                clauseTitle: c.type,
-                text: c.text,
-                risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
-                summary_eli5: c.explanation || "This is a standard clause.",
-                summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
-            })),
-        };
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
-        }
-        
-        router.push('/analysis');
-
-    } catch (error) {
-        console.error("Failed to analyze text:", error);
-        toast({
-          title: "Analysis Failed",
-          description: "Something went wrong while analyzing the document. Please try again.",
-          variant: "destructive",
-        });
-    } finally {
-        setIsLoading(false);
-    }
+    router.push('/analysis');
   };
 
   const handleFileAnalysis = async (file: File) => {
@@ -90,38 +70,81 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     }
 
     setIsLoading(true);
-    let text = '';
     
     try {
-        if (file.type === 'text/plain') {
-            text = await file.text();
-        } else if (file.type === 'application/pdf') {
+        let analysisResult;
+
+        if (file.type === 'application/pdf') {
             pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`;
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjs.getDocument(arrayBuffer).promise;
-            const numPages = pdf.numPages;
-            for (let i = 1; i <= numPages; i++) {
+            let text = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 text += textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
             }
-        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            const arrayBuffer = await file.arrayBuffer();
-            const result = await mammoth.extractRawText({ arrayBuffer });
-            text = result.value;
+
+            if (text.trim().length < 100) { // If text is minimal, assume it's a scanned PDF
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = async () => {
+                    const base64data = reader.result as string;
+                    analysisResult = await parseUploadedDocument({ documentDataUri: base64data });
+                    await processAndNavigate(analysisResult, file.name);
+                };
+                reader.onerror = () => {
+                   toast({ title: "Failed to read file", description: "Could not convert file to data URI for OCR.", variant: "destructive" });
+                   setIsLoading(false);
+                }
+                return; // Return here to let FileReader finish
+            } else {
+                 analysisResult = await parseUploadedDocument({ documentText: text });
+            }
+
+        } else {
+            let text = '';
+            if (file.type === 'text/plain') {
+                text = await file.text();
+            } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                text = result.value;
+            }
+            if (!text.trim()) {
+                toast({ title: "Document is empty", description: "The provided document has no text content.", variant: "destructive" });
+                setIsLoading(false);
+                return;
+            }
+            analysisResult = await parseUploadedDocument({ documentText: text });
         }
 
-        await processTextForAnalysis(text, file.name);
+        await processAndNavigate(analysisResult, file.name);
 
     } catch(error) {
         console.error("Error processing file:", error);
-        toast({ title: "Failed to process file", description: "There was an error reading the file content.", variant: "destructive" });
+        toast({ title: "Failed to process file", description: "There was an error reading or analyzing the file content.", variant: "destructive" });
+    } finally {
         setIsLoading(false);
     }
   };
 
   const handleDemystifyText = async () => {
-    await processTextForAnalysis(pastedText, 'Pasted Document');
+    const text = pastedText;
+     if (!text.trim()) {
+        toast({ title: "No text to analyze", description: "Please paste some text.", variant: "destructive" });
+        return;
+    }
+    setIsLoading(true);
+    try {
+      const analysisResult = await parseUploadedDocument({ documentText: text });
+      await processAndNavigate(analysisResult, "Pasted Document");
+    } catch(error) {
+      console.error("Failed to analyze text:", error);
+      toast({ title: "Analysis Failed", description: "Something went wrong during analysis.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -143,7 +166,9 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    handleFileAnalysis(file);
+    if (file) {
+      handleFileAnalysis(file);
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
