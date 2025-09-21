@@ -40,7 +40,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
   const processAndNavigate = async (result: any, title: string) => {
     const newDocument: SampleDocument = {
         title: result.title || title,
-        summary: "AI analysis of your uploaded document.",
+        summary: result.summary || "AI analysis of your uploaded document.",
         clauses: result.clauses.map((c: any) => ({
             id: c.clauseId,
             clauseTitle: c.type,
@@ -131,14 +131,13 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
   };
 
   const handleDemystifyText = async () => {
-    const text = pastedText;
-     if (!text.trim()) {
+    if (!pastedText.trim()) {
         toast({ title: "No text to analyze", description: "Please paste some text.", variant: "destructive" });
         return;
     }
     setIsLoading(true);
     try {
-      const analysisResult = await parseUploadedDocument({ documentText: text });
+      const analysisResult = await parseUploadedDocument({ documentText: pastedText });
       await processAndNavigate(analysisResult, "Pasted Document");
     } catch(error) {
       console.error("Failed to analyze text:", error);
@@ -169,6 +168,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     const file = e.dataTransfer.files[0];
     if (file) {
       setFileToUpload(file);
+      handleFileAnalysis(file);
     }
   };
 
@@ -237,18 +237,16 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                   onDragLeave={handleDragLeave}
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
+                  onClick={() => document.getElementById('file-upload-input')?.click()}
                 >
                     <input id="file-upload-input" type="file" className="hidden" accept=".txt,.pdf,.docx" onChange={handleFileSelect} />
                     <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
                     <p className="font-semibold text-foreground">
-                    Drag & drop files here
+                    Drag & drop files or click to browse
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2"> or </p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => document.getElementById('file-upload-input')?.click()}>
-                        Browse Files
-                    </Button>
-                    {fileToUpload && (
-                      <p className="text-sm text-green-600 mt-4">Selected: {fileToUpload.name}</p>
+                    <p className="text-sm text-muted-foreground mt-1">Supports .txt, .pdf, and .docx</p>
+                    {fileToUpload && !isLoading && (
+                      <p className="text-sm text-green-600 mt-4 font-medium">Selected: {fileToUpload.name}</p>
                     )}
                 </div>
                 <Button
@@ -275,7 +273,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                     />
                     <Button
                         onClick={handleDemystifyText}
-                        disabled={isLoading}
+                        disabled={isLoading || !pastedText}
                         className="w-full"
                     >
                         {isLoading ? (

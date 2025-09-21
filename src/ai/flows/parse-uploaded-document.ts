@@ -34,6 +34,7 @@ const ParseUploadedDocumentOutputSchema = z.object({
   }),
   financialTerms: z.array(z.string()).describe('A list of key financial obligations, such as rent, salary, or penalties.'),
   clauses: z.array(ClauseSchema),
+  summary: z.string().describe("A one-paragraph summary of the document's key points, risks, and purpose."),
   structuralIssues: z.array(z.string()).describe('A list of any detected structural issues, like missing signatures or undefined terms.'),
 });
 export type ParseUploadedDocumentOutput = z.infer<typeof ParseUploadedDocumentOutputSchema>;
@@ -64,8 +65,9 @@ You are a legal AI assistant for LawyeredUp with advanced OCR capabilities. The 
    - Extract the full 'text' of the clause.
    - Set a 'riskFlag'. Mark it as "unusual" if it contains language that is non-standard, one-sided, or potentially risky. Otherwise, mark it as "standard".
    - Provide a brief 'explanation' only if the riskFlag is "unusual".
-5. Detect structural issues (e.g., missing signatures, undefined terms).
-6. Return the result in JSON format matching the output schema.
+5. **Generate a one-paragraph 'summary'** of the document's key purpose, obligations, and overall risk level.
+6. Detect structural issues (e.g., missing signatures, undefined terms).
+7. Return the result in JSON format matching the output schema.
 
 [INPUT]
 {{#if documentDataUri}}
