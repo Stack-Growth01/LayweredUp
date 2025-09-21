@@ -43,18 +43,18 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
       const parseResult = await parseUploadedDocument({ documentText: text });
       const riskResult = await identifyRisksAndSuggestCounterProposals({ legalDocument: text });
       
-      const riskMap = new Map(riskResult.map(r => [r.clause, r]));
+      const riskMap = new Map(riskResult.map(r => [r.clauseId, r]));
 
       const newDocument: SampleDocument = {
         title: parseResult.title || title,
         summary: parseResult.summary,
         clauses: parseResult.clauses.map((c: any) => {
-          const riskInfo = riskMap.get(c.text);
+          const riskInfo = riskMap.get(c.clauseId);
           return {
             id: c.clauseId,
             clauseTitle: c.type,
             text: c.text,
-            risk: riskInfo ? (riskInfo.riskLevel === 'HIGH' ? 'risky' : 'negotiable') : 'standard',
+            risk: riskInfo && riskInfo.isRisky ? (riskInfo.riskLevel === 'HIGH' ? 'risky' : 'negotiable') : 'standard',
             summary_eli5: riskInfo ? riskInfo.issue : (c.explanation || "This is a standard clause."),
             summary_eli15: riskInfo ? riskInfo.issue : (c.explanation || "This clause follows typical patterns and does not contain unusual language."),
             counterProposal: riskInfo ? riskInfo.suggestedChange : undefined,
