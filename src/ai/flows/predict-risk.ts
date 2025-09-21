@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview A risk prediction engine for legal and compliance issues.
+ * @fileOverview A risk prediction engine for legal documents.
  *
- * - predictRisk - A function that calculates a risk score and suggests preventive actions.
+ * - predictRisk - A function that analyzes a legal document and highlights potential risks, liabilities, or unfavorable clauses.
  * - PredictRiskInput - The input type for the predictRisk function.
  * - PredictRiskOutput - The return type for the predictRisk function.
  */
@@ -11,19 +11,21 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 const PredictRiskInputSchema = z.object({
-  caseType: z.string().describe('The type of legal case, e.g., "Rental Dispute", "Contract Violation".'),
-  region: z.string().describe('The geographical region where the case is, e.g., "Delhi", "California".'),
-  userProfile: z.string().describe('A summary of the user\'s situation and history.'),
-  pastDisputes: z.array(z.string()).describe('A list of relevant past disputes for the user.'),
-  deadlines: z.array(z.string()).describe('A list of upcoming deadlines.'),
+  documentText: z.string().describe('The full text content of the legal document to be analyzed.'),
 });
 export type PredictRiskInput = z.infer<typeof PredictRiskInputSchema>;
 
+const RiskSchema = z.object({
+    clauseId: z.string().describe('An identifier for the clause being analyzed (e.g., "C5").'),
+    clauseText: z.string().describe('The full text of the risky clause.'),
+    riskCategory: z.string().describe('The category of the risk (e.g., "Financial", "Liability", "Compliance").'),
+    riskDescription: z.string().describe('A plain-language explanation of what the risk is.'),
+    predictedImpact: z.string().describe('A prediction of how this clause could create future issues (e.g., "Could lead to unexpected costs," "Limits your rights in a dispute").'),
+    severity: z.enum(["Low", "Medium", "High"]).describe("The severity of the potential risk."),
+});
+
 const PredictRiskOutputSchema = z.object({
-  risk_score: z.number().describe('A risk score from 0 to 100.'),
-  risk_factors: z.array(z.string()).describe('Factors contributing to the risk score.'),
-  preventive_actions: z.array(z.string()).describe('Suggested actions to mitigate the risk.'),
-  confidence_level: z.enum(["High", "Medium", "Low"]).describe("The model's confidence in its assessment."),
+    risks: z.array(RiskSchema).describe("An array of identified risks in the document."),
 });
 export type PredictRiskOutput = z.infer<typeof PredictRiskOutputSchema>;
 
@@ -36,20 +38,27 @@ const prompt = ai.definePrompt({
   input: {schema: PredictRiskInputSchema},
   output: {schema: PredictRiskOutputSchema},
   prompt: `[ROLE]
-You are an AI risk prediction engine monitoring legal and compliance risks for users.
+You are an AI risk prediction engine for legal documents. Your task is to act as a "risk radar," scanning legal jargon and pointing out where a user might face future issues.
 
-[INPUT DATA]
-Case Type: "{caseType}"
-Region: "{region}"
-User Profile: "{userProfile}"
-Past Disputes: {{#each pastDisputes}}- {{@this}}{{/each}}
-Deadlines: {{#each deadlines}}- {{@this}}{{/each}}
+[TASK]
+Analyze the provided legal document. Identify potential risks, liabilities, or unfavorable clauses. For each risk, explain it and predict its future impact by comparing it against industry best practices, legal benchmarks, and common pitfalls.
 
 [INSTRUCTIONS]
-1. Based on the input data, assign a risk score from 0 to 100, where 100 is the highest risk.
-2. Explain the score by identifying the key factors contributing to the risk (e.g., location-specific case delays, user’s prior missed deadlines, high penalties in contract).
-3. Suggest concrete, preventive actions (e.g., gather missing documents, file before X deadline, seek mediation).
-4. Set a confidence level for your assessment.
+1. Read the entire document text to understand its context.
+2. Go through the document clause by clause.
+3. For each clause that contains a potential risk, create a risk object.
+4. Each risk object must include:
+    - 'clauseId': A unique identifier for the clause (e.g., "C1", "C2").
+    - 'clauseText': The full text of the clause containing the risk.
+    - 'riskCategory': The type of risk (e.g., "Financial", "Liability", "Compliance", "Termination").
+    - 'riskDescription': A simple, clear explanation of the identified risk.
+    - 'predictedImpact': An analysis of how this clause could cause problems in the future. Be specific.
+    - 'severity': A "Low", "Medium", or "High" rating for the risk's potential severity.
+5. If no risks are found, return an empty array of risks.
+6. Return the result as a JSON object that matches the output schema.
+
+[INPUT]
+Document Text: "{{documentText}}"
 
 [OUTPUT FORMAT] (JSON)
 Respond with a JSON object that matches the output schema.

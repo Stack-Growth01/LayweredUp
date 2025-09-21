@@ -241,29 +241,11 @@ export default function AskAI({ document }: AskAIProps) {
       </FeatureContainer>
 
       <FeatureContainer title="7. Predict Risk">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const caseType = formData.get('caseType') as string;
-          const region = formData.get('region') as string;
-          const userProfile = formData.get('userProfile') as string;
-          runFlow('predictRisk', () => predictRisk({ caseType, region, userProfile, pastDisputes: [], deadlines: [] }));
-        }}>
-          <div className="grid grid-cols-2 gap-4 mb-2">
-            <div>
-              <Label htmlFor="caseType-risk">Case Type</Label>
-              <Input id="caseType-risk" name="caseType" defaultValue="Rental Dispute" />
-            </div>
-            <div>
-              <Label htmlFor="region-risk">Region</Label>
-              <Input id="region-risk" name="region" defaultValue="Delhi" />
-            </div>
-          </div>
-          <Label htmlFor="userProfile-risk">User Profile Summary</Label>
-          <Input id="userProfile-risk" name="userProfile" defaultValue="Tenant missed rent twice" className="mt-1 mb-2" />
+        <form onSubmit={(e) => handleFormSubmit(e, 'predictRisk', () => predictRisk({ documentText: getFullDocumentText() }))}>
+          <p className="text-sm text-muted-foreground mb-4">Analyze the document to identify potential risks, liabilities, and unfavorable clauses.</p>
           <Button type="submit" disabled={isLoading === 'predictRisk'}>
             {isLoading === 'predictRisk' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Predict Risk
+            Predict Document Risk
           </Button>
           {results.predictRisk && <ResultDisplay result={results.predictRisk} />}
         </form>
