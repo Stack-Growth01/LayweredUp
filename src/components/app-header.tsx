@@ -18,34 +18,40 @@ type AppHeaderProps = {
 export default function AppHeader({ onNewUpload, document }: AppHeaderProps) {
 
   const handleDownload = () => {
-    if (typeof window !== 'undefined') {
-      const risks = document.clauses.filter((c) => c.risk && c.risk !== 'standard');
-      const counterProposals = risks.filter((r) => r.counterProposal);
+    if (typeof window !== 'undefined' && document) {
+      const risks = document.clauses.filter(
+        (c) => c.risk && c.risk !== 'standard'
+      );
+      const counterProposals = document.clauses.filter(
+        (c) => c.counterProposal
+      );
 
       let reportContent = `# Summary of ${document.title}\n\n`;
       reportContent += `**Overall Summary:**\n${document.summary}\n\n`;
-      reportContent += "---\n\n";
+      reportContent += '---\n\n';
 
       if (risks.length > 0) {
-        reportContent += "## Risks Identified\n\n";
+        reportContent += '## Risks Identified\n\n';
         risks.forEach((risk) => {
           reportContent += `### ${risk.clauseTitle} (Risk: ${risk.risk})\n`;
           reportContent += `**Issue:** ${risk.summary_eli15}\n\n`;
         });
-        reportContent += "---\n\n";
+        reportContent += '---\n\n';
       }
 
       if (counterProposals.length > 0) {
-        reportContent += "## Appendix: Suggested Counter-Proposals\n\n";
-        counterProposals.forEach((risk) => {
-          reportContent += `### For clause "${risk.clauseTitle}":\n\n`;
-          reportContent += "```\n";
-          reportContent += `${risk.counterProposal}\n`;
-          reportContent += "```\n\n";
+        reportContent += '## Appendix: Suggested Counter-Proposals\n\n';
+        counterProposals.forEach((clause) => {
+          reportContent += `### For clause "${clause.clauseTitle}":\n\n`;
+          reportContent += '```\n';
+          reportContent += `${clause.counterProposal}\n`;
+          reportContent += '```\n\n';
         });
       }
 
-      const blob = new Blob([reportContent], { type: 'text/markdown;charset=utf-8' });
+      const blob = new Blob([reportContent], {
+        type: 'text/markdown;charset=utf-8',
+      });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
