@@ -11,7 +11,6 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 const CheckMissingContractsInputSchema = z.object({
-  mainContractType: z.string().describe('The type of the main contract, e.g., "Employment Agreement".'),
   mainContractContent: z.string().describe('The full text content of the main contract.'),
 });
 export type CheckMissingContractsInput = z.infer<typeof CheckMissingContractsInputSchema>;
@@ -35,7 +34,7 @@ const prompt = ai.definePrompt({
 You are an AI legal assistant that specializes in identifying required supporting legal documents for a primary contract.
 
 [INSTRUCTIONS]
-1. Read the provided contract type and its content.
+1. Read the provided contract content and first determine the type of contract it is (e.g., "Employment Agreement", "Rental Agreement").
 2. Based on the contract type, identify what other legal agreements are typically associated with it. For example:
    - An "Employment Agreement" might need an "NDA", a "Non-compete Agreement", or an "ESOP Agreement".
    - A "Rental Agreement" might need a "Security Deposit Agreement" or a "Maintenance Agreement".
@@ -45,7 +44,6 @@ You are an AI legal assistant that specializes in identifying required supportin
 5. Provide a clear reason for why each recommended contract is necessary.
 
 [INPUT]
-Contract Type: "{{mainContractType}}"
 Contract Content: "{{mainContractContent}}"
 
 [OUTPUT FORMAT] (JSON)

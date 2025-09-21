@@ -388,17 +388,8 @@ export default function AskAI({ document }: AskAIProps) {
       </FeatureContainer>
 
       <FeatureContainer title="13. Check Missing Contracts">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(e.currentTarget);
-          const mainContractType = formData.get('mainContractType') as string;
-          const mainContractContent = formData.get('mainContractContent') as string;
-          runFlow('checkMissing', () => checkMissingContracts({ mainContractType, mainContractContent }));
-        }}>
-          <Label htmlFor="mainContractType">Contract Type</Label>
-          <Input id="mainContractType" name="mainContractType" defaultValue="Employment Agreement" className="mt-1 mb-2" />
-          <Label htmlFor="mainContractContent">Contract Content</Label>
-          <Textarea id="mainContractContent" name="mainContractContent" defaultValue="This agreement confirms the employment of John Doe..." className="mt-1 mb-2" />
+        <form onSubmit={(e) => handleFormSubmit(e, 'checkMissing', () => checkMissingContracts({ mainContractContent: getFullDocumentText() }))}>
+           <p className="text-sm text-muted-foreground mb-4">Analyze the current document and suggest other contracts that might be needed.</p>
           <Button type="submit" disabled={isLoading === 'checkMissing'}>
             {isLoading === 'checkMissing' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Check for Missing Contracts
