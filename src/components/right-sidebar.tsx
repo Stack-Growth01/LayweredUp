@@ -38,8 +38,8 @@ export default function RightSidebar({ document, isCollapsed, onToggleCollapse }
                 side="right"
                 className="absolute top-1/2 -translate-y-1/2"
             />
-            <div className={cn("transition-opacity", isCollapsed ? "opacity-0" : "opacity-100")}>
-                <ScrollArea className="h-screen">
+            <div className={cn("transition-opacity flex-1 overflow-hidden", isCollapsed ? "opacity-0" : "opacity-100")}>
+                <ScrollArea className="h-full">
                     <div className="p-4 space-y-4">
                         <Card>
                             <CardHeader>
