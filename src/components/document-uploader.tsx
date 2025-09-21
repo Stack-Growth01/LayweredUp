@@ -16,8 +16,8 @@ import { ThemeToggle } from './theme-toggle';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
-import { identifyRisksAndSuggestCounterProposals } from '@/ai/flows/identify-risks-and-suggest-counter-proposals';
+import { parseUploadedDocument, type ParseUploadedDocumentOutput } from '@/ai/flows/parse-uploaded-document';
+import { identifyRisksAndSuggestCounterProposals, type IdentifyRisksAndSuggestCounterProposalsOutput } from '@/ai/flows/identify-risks-and-suggest-counter-proposals';
 import type { SampleDocument } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -31,18 +31,19 @@ type DocumentUploaderProps = {
   setIsLoading: (isLoading: boolean) => void;
 };
 
-export default function DocumentUploader({ onUploadSample, isLoading, setIsLoading }: DocumentUploaderProps) {
+export default function DocumentUploader({ onUploadSample, isLoading: isSampleLoading, setIsLoading: setIsSampleLoading }: DocumentUploaderProps) {
   const [pastedText, setPastedText] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
   const processAndNavigate = async (text: string, title: string) => {
     try {
-      const parseResult = await parseUploadedDocument({ documentText: text });
+      const parseResult: ParseUploadedDocumentOutput = await parseUploadedDocument({ documentText: text });
       
-      const riskResult = await identifyRisksAndSuggestCounterProposals({ clauses: parseResult.clauses });
+      const riskResult: IdentifyRisksAndSuggestCounterProposalsOutput = await identifyRisksAndSuggestCounterProposals({ clauses: parseResult.clauses });
       
       const riskMap = new Map(riskResult.map(r => [r.clauseId, r]));
 
@@ -71,6 +72,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     } catch (error) {
       console.error("Error during AI processing:", error);
       toast({ title: "Analysis Failed", description: "Something went wrong while analyzing the document.", variant: "destructive" });
+      throw error;
     }
   };
 
@@ -87,7 +89,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
       return;
     }
 
-    setIsLoading(true);
+    setIsProcessing(true);
     
     try {
         let text = '';
@@ -95,26 +97,36 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
             pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`;
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjs.getDocument(arrayBuffer).promise;
-
+            let ocrText = '';
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                text += textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
+                ocrText += textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
             }
 
-            if (text.trim().length < 100) { 
+            if (ocrText.trim().length < 100) { 
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onloadend = async () => {
-                    const base64data = reader.result as string;
-                    const ocrResult = await parseUploadedDocument({ documentDataUri: base64data });
-                    await processAndNavigate(ocrResult.clauses.map(c => c.text).join('\n\n'), file.name);
-                };
-                reader.onerror = () => {
-                   toast({ title: "Failed to read file", description: "Could not convert file to data URI for OCR.", variant: "destructive" });
-                   setIsLoading(false);
-                }
+                await new Promise<void>((resolve, reject) => {
+                    reader.onloadend = async () => {
+                        try {
+                            const base64data = reader.result as string;
+                            const ocrResult = await parseUploadedDocument({ documentDataUri: base64data });
+                            await processAndNavigate(ocrResult.clauses.map(c => c.text).join('\n\n'), file.name);
+                            resolve();
+                        } catch (e) {
+                            reject(e);
+                        }
+                    };
+                    reader.onerror = () => {
+                       toast({ title: "Failed to read file", description: "Could not convert file to data URI for OCR.", variant: "destructive" });
+                       reject(new Error('File read error'));
+                    }
+                });
+                setIsProcessing(false);
                 return;
+            } else {
+                text = ocrText;
             }
 
         } else if (file.type === 'text/plain') {
@@ -127,7 +139,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
 
         if (!text.trim()) {
             toast({ title: "Document is empty", description: "The provided document has no text content.", variant: "destructive" });
-            setIsLoading(false);
+            setIsProcessing(false);
             return;
         }
 
@@ -137,7 +149,7 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
         console.error("Error processing file:", error);
         toast({ title: "Failed to process file", description: "There was an error reading or analyzing the file content.", variant: "destructive" });
     } finally {
-        setIsLoading(false);
+        setIsProcessing(false);
     }
   };
 
@@ -146,9 +158,14 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
         toast({ title: "No text to analyze", description: "Please paste some text.", variant: "destructive" });
         return;
     }
-    setIsLoading(true);
-    await processAndNavigate(pastedText, "Pasted Document");
-    setIsLoading(false);
+    setIsProcessing(true);
+    try {
+        await processAndNavigate(pastedText, "Pasted Document");
+    } catch(e) {
+        // error already toasted
+    } finally {
+        setIsProcessing(false);
+    }
   };
   
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -249,16 +266,16 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                     Drag & drop files or click to browse
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">Supports .txt, .pdf, and .docx</p>
-                    {fileToUpload && !isLoading && (
+                    {fileToUpload && !isProcessing && (
                       <p className="text-sm text-green-600 mt-4 font-medium">Selected: {fileToUpload.name}</p>
                     )}
                 </div>
                 <Button
                     onClick={() => handleFileAnalysis(fileToUpload)}
-                    disabled={isLoading || !fileToUpload}
+                    disabled={isProcessing || !fileToUpload}
                     className="w-full"
                 >
-                    {isLoading ? (
+                    {isProcessing ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                     <Bot className="mr-2 h-4 w-4" />
@@ -277,10 +294,10 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                     />
                     <Button
                         onClick={handleDemystifyText}
-                        disabled={isLoading || !pastedText}
+                        disabled={isProcessing || !pastedText}
                         className="w-full"
                     >
-                        {isLoading ? (
+                        {isProcessing ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
                         <Bot className="mr-2 h-4 w-4" />
@@ -298,10 +315,10 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
                     </div>
                      <Button
                         onClick={onUploadSample}
-                        disabled={isLoading}
+                        disabled={isSampleLoading}
                         className="w-full"
                     >
-                        {isLoading ? (
+                        {isSampleLoading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
                         <Bot className="mr-2 h-4 w-4" />
@@ -317,11 +334,11 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 w-full max-w-3xl">
          <Button
             onClick={onUploadSample}
-            disabled={isLoading}
+            disabled={isSampleLoading}
             className="w-full sm:w-auto flex-grow"
             size="lg"
           >
-            {isLoading ? (
+            {isSampleLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                <Bot className="mr-2 h-4 w-4" />
@@ -631,5 +648,3 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     </div>
   );
 }
-
-    
