@@ -16,9 +16,10 @@ import { ThemeToggle } from './theme-toggle';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { summarizeDocument } from '@/ai/flows/summarize-document';
+import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
 import type { SampleDocument } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 
 type DocumentUploaderProps = {
@@ -29,8 +30,78 @@ type DocumentUploaderProps = {
 
 export default function DocumentUploader({ onUploadSample, isLoading, setIsLoading }: DocumentUploaderProps) {
   const [pastedText, setPastedText] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+
+  const handleFileAnalysis = async (file: File) => {
+    if (!file) {
+      toast({
+        title: "No file selected",
+        description: "Please drop or select a file to analyze.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.type !== 'text/plain') {
+      toast({
+        title: "Unsupported File Type",
+        description: "For now, this feature only supports plain .txt files.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const text = e.target?.result as string;
+      if (!text) {
+        toast({ title: "File is empty", description: "The selected file has no content.", variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const analysisResult = await parseUploadedDocument({ documentText: text });
+        
+        const newDocument: SampleDocument = {
+            title: analysisResult.title || "Uploaded Document",
+            summary: "AI analysis of your uploaded document.",
+            clauses: analysisResult.clauses.map(c => ({
+              id: c.clauseId,
+              clauseTitle: c.type,
+              text: c.text,
+              risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
+              summary_eli5: c.explanation || "This is a standard clause.",
+              summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
+            })),
+        };
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
+        }
+        
+        router.push('/analysis');
+
+      } catch (error) {
+        console.error("Failed to analyze file:", error);
+        toast({
+          title: "Analysis Failed",
+          description: "Something went wrong while analyzing the file. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    reader.onerror = () => {
+      toast({ title: "Failed to read file", variant: "destructive" });
+      setIsLoading(false);
+    };
+    reader.readAsText(file);
+  };
 
   const handleDemystifyText = async () => {
     if (!pastedText.trim()) {
@@ -43,17 +114,19 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     }
     setIsLoading(true);
     try {
-      const { summary } = await summarizeDocument({ documentText: pastedText });
+      const analysisResult = await parseUploadedDocument({ documentText: pastedText });
       
-      const newDocument: SampleDocument = {
-        title: "Pasted Document",
-        summary: summary,
-        clauses: [{
-          id: 'p1',
-          text: pastedText,
-          summary_eli5: 'This is the content you pasted.',
-          summary_eli15: 'The AI has analyzed the full text you provided.'
-        }],
+       const newDocument: SampleDocument = {
+          title: analysisResult.title || "Pasted Document",
+          summary: "AI analysis of your pasted text.",
+          clauses: analysisResult.clauses.map(c => ({
+            id: c.clauseId,
+            clauseTitle: c.type,
+            text: c.text,
+            risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
+            summary_eli5: c.explanation || "This is a standard clause.",
+            summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
+          })),
       };
 
       if (typeof window !== 'undefined') {
@@ -71,6 +144,35 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    handleFileAnalysis(file);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileAnalysis(file);
     }
   };
 
@@ -123,17 +225,28 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
             </TabsList>
             <TabsContent value="upload">
                 <div className="flex flex-col gap-4">
-                    <div className="border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors">
+                    <div 
+                      className={cn(
+                        "border-2 border-dashed border-border rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary transition-colors",
+                        isDragging && "border-primary bg-primary/10"
+                      )}
+                      onDragEnter={handleDragEnter}
+                      onDragLeave={handleDragLeave}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById('file-upload-input')?.click()}
+                    >
+                        <input id="file-upload-input" type="file" className="hidden" accept=".txt" onChange={handleFileSelect} />
                         <UploadCloud className="h-12 w-12 text-muted-foreground mb-4" />
                         <p className="font-semibold text-foreground">
                         Drag & drop files here or click to browse
                         </p>
                         <p className="text-sm text-muted-foreground">
-                        Supports PDF, DOCX (up to 25MB)
+                        Supports .TXT files
                         </p>
                     </div>
                     <Button
-                        onClick={onUploadSample}
+                        onClick={() => document.getElementById('file-upload-input')?.click()}
                         disabled={isLoading}
                         className="w-full"
                     >
