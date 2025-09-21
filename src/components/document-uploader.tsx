@@ -17,6 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { parseUploadedDocument } from '@/ai/flows/parse-uploaded-document';
+import { identifyRisksAndSuggestCounterProposals } from '@/ai/flows/identify-risks-and-suggest-counter-proposals';
 import type { SampleDocument } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -37,26 +38,41 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
   const router = useRouter();
   const { toast } = useToast();
 
-  const processAndNavigate = async (result: any, title: string) => {
-    const newDocument: SampleDocument = {
-        title: result.title || title,
-        summary: result.summary || "AI analysis of your uploaded document.",
-        clauses: result.clauses.map((c: any) => ({
+  const processAndNavigate = async (text: string, title: string) => {
+    try {
+      const parseResult = await parseUploadedDocument({ documentText: text });
+      const riskResult = await identifyRisksAndSuggestCounterProposals({ legalDocument: text });
+      
+      const riskMap = new Map(riskResult.map(r => [r.clause, r]));
+
+      const newDocument: SampleDocument = {
+        title: parseResult.title || title,
+        summary: parseResult.summary,
+        clauses: parseResult.clauses.map((c: any) => {
+          const riskInfo = riskMap.get(c.text);
+          return {
             id: c.clauseId,
             clauseTitle: c.type,
             text: c.text,
-            risk: c.riskFlag === 'unusual' ? 'negotiable' : 'standard',
-            summary_eli5: c.explanation || "This is a standard clause.",
-            summary_eli15: c.explanation || "This clause follows typical patterns and does not contain unusual language.",
-        })),
-    };
-
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
+            risk: riskInfo ? (riskInfo.riskLevel === 'HIGH' ? 'risky' : 'negotiable') : 'standard',
+            summary_eli5: riskInfo ? riskInfo.issue : (c.explanation || "This is a standard clause."),
+            summary_eli15: riskInfo ? riskInfo.issue : (c.explanation || "This clause follows typical patterns and does not contain unusual language."),
+            counterProposal: riskInfo ? riskInfo.suggestedChange : undefined,
+          };
+        }),
+      };
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('documentAnalysis', JSON.stringify(newDocument));
+      }
+      
+      router.push('/analysis');
+    } catch (error) {
+      console.error("Error during AI processing:", error);
+      toast({ title: "Analysis Failed", description: "Something went wrong while analyzing the document.", variant: "destructive" });
     }
-    
-    router.push('/analysis');
   };
+
 
   const handleFileAnalysis = async (file: File | null) => {
     if (!file) {
@@ -73,54 +89,48 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
     setIsLoading(true);
     
     try {
-        let analysisResult;
-
+        let text = '';
         if (file.type === 'application/pdf') {
             pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.mjs`;
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjs.getDocument(arrayBuffer).promise;
-            let text = '';
+
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 text += textContent.items.map(item => 'str' in item ? item.str : '').join(' ');
             }
 
-            if (text.trim().length < 100) { // If text is minimal, assume it's a scanned PDF
+            if (text.trim().length < 100) { 
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onloadend = async () => {
                     const base64data = reader.result as string;
-                    analysisResult = await parseUploadedDocument({ documentDataUri: base64data });
-                    await processAndNavigate(analysisResult, file.name);
+                    const ocrResult = await parseUploadedDocument({ documentDataUri: base64data });
+                    await processAndNavigate(ocrResult.clauses.map(c => c.text).join('\n\n'), file.name);
                 };
                 reader.onerror = () => {
                    toast({ title: "Failed to read file", description: "Could not convert file to data URI for OCR.", variant: "destructive" });
                    setIsLoading(false);
                 }
-                return; // Return here to let FileReader finish
-            } else {
-                 analysisResult = await parseUploadedDocument({ documentText: text });
-            }
-
-        } else {
-            let text = '';
-            if (file.type === 'text/plain') {
-                text = await file.text();
-            } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-                const arrayBuffer = await file.arrayBuffer();
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                text = result.value;
-            }
-            if (!text.trim()) {
-                toast({ title: "Document is empty", description: "The provided document has no text content.", variant: "destructive" });
-                setIsLoading(false);
                 return;
             }
-            analysisResult = await parseUploadedDocument({ documentText: text });
+
+        } else if (file.type === 'text/plain') {
+            text = await file.text();
+        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            text = result.value;
         }
 
-        await processAndNavigate(analysisResult, file.name);
+        if (!text.trim()) {
+            toast({ title: "Document is empty", description: "The provided document has no text content.", variant: "destructive" });
+            setIsLoading(false);
+            return;
+        }
+
+        await processAndNavigate(text, file.name);
 
     } catch(error) {
         console.error("Error processing file:", error);
@@ -136,15 +146,8 @@ export default function DocumentUploader({ onUploadSample, isLoading, setIsLoadi
         return;
     }
     setIsLoading(true);
-    try {
-      const analysisResult = await parseUploadedDocument({ documentText: pastedText });
-      await processAndNavigate(analysisResult, "Pasted Document");
-    } catch(error) {
-      console.error("Failed to analyze text:", error);
-      toast({ title: "Analysis Failed", description: "Something went wrong during analysis.", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
+    await processAndNavigate(pastedText, "Pasted Document");
+    setIsLoading(false);
   };
   
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
